@@ -9,4 +9,8 @@ worldvaluesservey.org
 databank.worldbank.org  
 https://www.hofstede-insights.com/country-comparison/denmark,france,germany,sweden/
 
+# Brainstorm
 
+## Example Idea and data
+
+## Another example idea
