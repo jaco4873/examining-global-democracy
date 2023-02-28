@@ -1,0 +1,89 @@
+---
+title: "freedom-house"
+author: "Jacob Lillelund"
+date: "2023-02-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Call packages and load data
+```{r}
+library(readxl)
+library(janitor)
+library(tidyverse)
+
+setwd("/Users/jacoblillelund/Documents/applied-social-science")
+
+# load data 
+
+# Freedom house
+fw_data <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
+
+fw_data <- fw_data %>% # tidy data with janitor-package
+  clean_names()
+
+fw_data <- fw_data %>% rename(country = country_territory) # rename 
+
+# Democracy matrix ranking
+dmr_data <- read_excel("democracy-matrix-ranking.xlsx", skip = 1, col_names = TRUE)
+dmr_data <- dmr_data %>% # tidy data with janitor-package
+  clean_names()
+
+dmr_data <- dmr_data %>% select(country, total_value_index) # select values
+
+# merge dataframes
+
+fw_data_mergeready <-  fw_data %>% filter(edition == 2020)
+# Left join the two data frames by the 'country' column
+merged_data <- left_join(fw_data_mergeready, dmr_data, by = "country")
+
+merged_data_total_values <- merged_data %>% 
+  select(country, total, total_value_index) %>% 
+  filter(!is.na(total_value_index)) %>% 
+  mutate(total_value_index = total_value_index/10)
+
+# Scatterplot
+merged_data_total_values %>% 
+  ggplot(aes(x = total, y = total_value_index, label = country)) +
+  geom_text() +
+  geom_smooth(method = "lm", se = FALSE)
+
+# Check correlation
+cor(merged_data_total_values$total, merged_data_total_values$total_value_index)
+```
+
+# Description of dataframe variables
+The same indicators were present from FIW2013 through FIW2018.														
+In FIW2018, Add A (Additional Discretionary Question A) was eliminated, and Add B (Additional Discretionary Question B) was renamed Add Q.														
+For data-analysis purposes, Freedom in the World divides countries and territories into six world regions: Africa, the Americas, Asia-Pacific, Eurasia, Europe, and the Middle East. Prior to the 2022 edition, the countries of North Africa were grouped with the Middle East rather than the rest of Africa. 														
+														
+Key														
+C/T? indicates whether the entry is a country (c) or territory (t)														
+F=Free, PF=Partly Free, NF=Not Free														
+PR Rating=Political Rights Rating														
+CL Rating=Civil Liberties Rating														
+A =aggregate score for the A. Electoral Process subcategory														
+B =aggregate score for the B. Political Pluralism and Participation subcategory														
+C =aggregate score for the C. Functioning of Government subcategory														
+Add Q (Add B)=score for Additional Discretionary Question (B)														
+Add A=score for Additional Discretionary Question A														
+PR =aggregate score for the Political Rights category														
+D =aggregate score for the D. Freedom of Expression and Belief subcategory														
+E =aggregate score for the E. Associational and Organizational Rights subcategory														
+F =aggregate score for the F. Rule of Law subcategory														
+G =aggregate score for te G. Personal Autonomy and Individual Rights subcategory														
+CL =aggregate score for the Civil Liberties category														
+Total =aggregate score for all categories														
+														
+														
+Please refer to the full methodology for more details:  https://freedomhouse.org/reports/freedom-in-the-world/freedom-in-the-world-research-methodology														
+
+# Exploratory Data Analysis
+```{r}
+inspect <- raw_data %>% select(country_territory, edition, a, b, c, add_q, add_a, pr, d, e, f, g, cl, total)
+inspect
+```
+
