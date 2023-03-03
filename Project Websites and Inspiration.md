@@ -67,6 +67,8 @@ Human Development Index (HDI): This composite index measures indicators such as 
 
 9. Health indicators: Measures such as life expectancy, infant mortality rate, and access to healthcare can provide insight into a country's overall level of development and well-being.
 
+10. Surplus Food and Food prices. What part of the population budget is spend on Food and other necessities?
+
 ## Historical trends in democracy
 Analyze data on historical trends in democratic institutions, such as measures of political rights and civil liberties, to explore how democracy has evolved over time across different regions of the world. Use R to create visualizations that highlight key trends and patterns in the data.
 We could group countries by region. Really easy if we use the dataset from Freedom House.
