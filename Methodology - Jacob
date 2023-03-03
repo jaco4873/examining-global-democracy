@@ -25,7 +25,7 @@ Fixed effects models are appropriate when the focus is on within-entity variatio
 
 In some cases, researchers might combine fixed effects and mixed effects models to obtain a more comprehensive understanding of the relationships among the variables of interest. This approach, known as a hybrid model, includes both fixed and random effects in the model and allows for estimation of the effects of time-varying and time-invariant variables while controlling for unobserved heterogeneity across entities.
 
-## Project relevance
+# Project relevance
 the FW data from 2013 to 2022 is panel data. We can append that dataframe with macroeconomic variables and create a mixed effect model regression.
 -  We can focus on a selection of countries
 
@@ -35,7 +35,7 @@ factors such as geography, language, culture, history, and institutional structu
 By including the "country_i" and "year_t" variables in the model, we can estimate the impact of the macroeconomic variables on the liberal democracy score while accounting for any country-specific or time-specific factors that may affect the relationship. This is known as a panel data regression, which is a more appropriate approach for analyzing panel data than a simple linear regression.
 
 
-### FIXED EFFECT Model Suggestion
+## FIXED EFFECT Model Suggestion
 LiberalDemScore_it = β0 + β1GDPperCapita_it + β2GiniCoeff_it + β3Education_it + β4EmploymentRate_it + β5GrowthRate_it + β6InflationRate_it + β7*PovertyRate_it + country_i + year_t + e_it
 
 where:
@@ -56,10 +56,10 @@ e_it is the error term
 
 To include the fixed effects, you could include a set of dummy variables in the model that indicate which country each observation belongs to. This would control for any time-invariant factors that are unique to each country, such as historical or cultural factors. ( AS ABOVE)
 
-### MIXED EFFECT Model Suggestion
+## MIXED EFFECT Model Suggestion
 To include the random effects, you could assume that the effect of each independent variable on the democracy score varies randomly across countries. For example, you could include a random slope for each independent variable, which would allow the effect of each independent variable to vary across countries while still controlling for the effects of country-specific factors.
 
-#### LONG FORMAT
+### LONG FORMAT
 To include random effects in the model, we assume that the coefficients of the independent variables vary across countries. Specifically, we assume that the coefficients follow a normal distribution with a mean and variance. This means that the effect of each independent variable on the liberal democracy score will vary randomly across countries according to a normal distribution.
 
 For example, let's say we have a model with two independent variables: GDP per capita and education level. We can include random effects by allowing the coefficients for each independent variable to vary randomly across countries. This means that the effect of GDP per capita on the liberal democracy score will vary randomly across countries, and the effect of education level on the liberal democracy score will also vary randomly across countries.
@@ -74,4 +74,7 @@ If prior research has suggested a causal relationship between GDP per capita and
 
 It is also important to note that while panel data regression can help identify associations between variables, it cannot establish causality on its own. Causal inference requires a combination of statistical analysis, theory, and additional evidence.
 
-
+# Economic Predictors
+- GDP per capita (constant 2015 $)
+GDP based on current price and constant price are two key widely used macroeconomic indicators. Every country calculates both measures due to their differences; they are also widely known as nominal and real GDP, respectively. The relationship between current price and constant price is that GDP constant price is derived from the GDP current price. The key difference between current price and constant price is that GDP at current price is the GDP unadjusted for the effects of inflation and is at current market prices whereas GDP at constant price is the GDP adjusted for the effects of inflation.
+https://www.differencebetween.com/difference-between-current-price-and-vs-constant-price/#:~:text=GDP%20at%20constant%20price%20is%20widely%20used%20as%20a%20reliable,actual%20increase%20in%20economic%20activity.

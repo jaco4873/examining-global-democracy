@@ -55,7 +55,7 @@ Human Development Index (HDI): This composite index measures indicators such as 
 
 3. Abundance of Natural resources (I presume that is a negative correlation)
 
-4. Gross National Income (GNI) per capita: This is a measure of a country's economic output per person.
+4. GDP per capita (constant 2015 $)
 
 5. Employment rate: This measures the percentage of the population that is employed.
 
