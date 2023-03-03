@@ -67,24 +67,19 @@ Human Development Index (HDI): This composite index measures indicators such as 
 
 9. Health indicators: Measures such as life expectancy, infant mortality rate, and access to healthcare can provide insight into a country's overall level of development and well-being.
 
+10. Surplus Food and Food prices. What part of the population budget is spend on Food and other necessities?
+
 ## Historical trends in democracy
 Analyze data on historical trends in democratic institutions, such as measures of political rights and civil liberties, to explore how democracy has evolved over time across different regions of the world. Use R to create visualizations that highlight key trends and patterns in the data.
 We could group countries by region. Really easy if we use the dataset from Freedom House.
 
-## Democracy and Social Inequality
-Danalyze data on social indicators such as education and health outcomes, as well as measures of democratic institutions, to explore the relationship between democracy and social inequality. Use R to create visualizations that highlight differences in democratic outcomes across countries with varying levels of social inequality.
-
 ## Global Migration Patterns
 Use data on migration patterns to explore trends in international migration, including the reasons people migrate and the impact of migration on both sending and receiving countries. Use R to create visualizations that highlight differences in migration patterns across regions and countries.
+-internal migration in the EU
+how is GDP related to strong immigration patterns (southern europeans moving north?)
 
  ##  Cultural values and economic outcome
  Analyze data on cultural values and economic outcomes to explore how cultural factors influence economic development. Use R to perform regression analysis that examines the relationship between cultural values and economic outcomes such as GDP and employment rates.
-
-  ## Income inequality and education
- Analyze the relationship between income inequality and educational outcomes using data on income distribution and education levels across countries. Use R to perform regression analysis to determine the effect of income inequality on educational outcomes.
-
-## Income mobility and social inequality
- Analyze data on income mobility and social inequality to explore the extent to which social and economic mobility is possible across different countries and regions.
 
  ## Human development and environmental sustainability
  Analyze data on human development and environmental indicators such as carbon emissions and renewable energy use to explore the relationship between economic development and environmental sustainability. Use R to create linear regression models to examine the impact of economic development on environmental sustainability.
