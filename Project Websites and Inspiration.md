@@ -75,6 +75,8 @@ We could group countries by region. Really easy if we use the dataset from Freed
 
 ## Global Migration Patterns
 Use data on migration patterns to explore trends in international migration, including the reasons people migrate and the impact of migration on both sending and receiving countries. Use R to create visualizations that highlight differences in migration patterns across regions and countries.
+-internal migration in the EU
+how is GDP related to strong immigration patterns (southern europeans moving north?)
 
  ##  Cultural values and economic outcome
  Analyze data on cultural values and economic outcomes to explore how cultural factors influence economic development. Use R to perform regression analysis that examines the relationship between cultural values and economic outcomes such as GDP and employment rates.
