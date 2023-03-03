@@ -1,5 +1,5 @@
 ---
-title: "freedom-house"
+title: "Democracy & Macroeconomics"
 author: "Jacob Lillelund"
 date: "2023-02-28"
 output: html_document
@@ -62,7 +62,7 @@ cor(merged_data_total_values$total, merged_data_total_values$total_value_index)
 
 # Exploratory Data Analysis
 ```{r}
-inspect <- raw_data %>% select(country_territory, edition, a, b, c, add_q, add_a, pr, d, e, f, g, cl, total)
+inspect <- fw_data %>% select(country, edition, a, b, c, add_q, add_a, pr, d, e, f, g, cl, total)
 inspect
 ```
 
