@@ -12,3 +12,12 @@ What? - A regression model, regressing the freedom house score on various macroe
 
 Why? - We believe that freedom in the World operates from the assumption that freedom for all people is best achieved in liberal democratic societies.
 
+## Acceptable products
+### MVP
+Our Minimal Viable Product is a regression of the Freedom House dataset scores on various macroeconomic scores.
+
+### IP
+Our Intermediate Product is the creation of a Github Pages site on which we publish our findings
+
+### AP
+Our Advanced Product is self-critique as well as suggesting further studies. This will also be published on Github Pages.
