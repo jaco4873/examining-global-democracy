@@ -1,5 +1,3 @@
-# Product Ideas 
-
 ## MVP: Minimal viable product
 Data visalisation 
 

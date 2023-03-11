@@ -1,5 +1,11 @@
 ## Research Papers
 
+### Income and Democracy (2008)
+
+Link: PDF saved under "resources" folder in our repository
+
+About: How GDP pr capita seems to correlate with Democracy Score
+
 ### Determinants of Democracy (1999)
 
 
