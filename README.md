@@ -14,7 +14,7 @@ Why? - We believe that freedom in the World operates from the assumption that fr
 
 ## Acceptable products
 ### MVP
-Our Minimal Viable Product is a regression of the Freedom House dataset scores on various macroeconomic scores.
+Our Minimal Viable Product is a regression of the Freedom House dataset scores on various macroeconomic scores and relevant data visualisation.
 
 ### IP
 Our Intermediate Product is the creation of a Github Pages site on which we publish our findings
