@@ -1,7 +1,7 @@
 # Applied Social Science
 2023 Project in Applied Cognitive Science
 The Project is an Exploratory Study and WILL need a confirmatory study later on to prove its findings in any way. (Refer to Art of Statistics p. 350-353)
-
+Can we use our model on test-data (which we have not looked into beforehand?), to do some confirmatory analysis?
 
 ## Our User story
 1. As a researcher, I want to develop a tool that can assist policymakers in making informed decisions regarding improvement of liberal democracy. 
