@@ -1,5 +1,6 @@
 # Applied Social Science
 2023 Project in Applied Cognitive Science
+The Project is an Exploratory Study and WILL need a confirmatory study later on to prove its findings in any way. (Refer to Art of Statistics p. 350-353)
 
 
 ## Our User story
