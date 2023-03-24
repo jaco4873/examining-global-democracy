@@ -1,0 +1,58 @@
+---
+title: "Democracy & Macroeconomics"
+author: "Jonathan"
+date: "2023-02-28"
+output: html_document
+---
+
+# Call packages and load data
+```{r setup}
+library(tidyverse)
+
+setwd("C:/Users/jonat/OneDrive/Desktop/University/Assignments/2. Semester/Applied Cognitive Science/Repository/applied-social-science")
+
+```
+
+```{r}
+
+WDB <- read_csv("Repository/applied-social-science/data/worlddatabank_clean.csv")
+
+```
+
+```{r}
+
+Missing_Data <- data_frame(Economic_variable = c(
+  "Adjusted net national income per capita (constant 2015 US$)", 
+  "Gini index", 
+  "Income share held by highest 20%", 
+  "Income share held by lowest 20%", 
+  "Total natural resources rents (% of GDP)")
+  )
+
+
+for (EV in Missing_Data$Economic_variable) {
+  
+  for (Year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")) {
+  
+  N_NA <- WDB %>%
+            filter(economic_variable == EV) %>% 
+            select(Year) %>% 
+            summarize(num_na = sum(is.na(.)))
+  N_Total <- WDB %>%
+            filter(economic_variable == EV) %>% 
+            select(Year) %>% 
+            nrow()
+
+  MD <- N_NA/N_Total
+
+  Missing_Data[[Year]][Missing_Data$Economic_variable == EV] <- MD
+}
+}
+
+
+```
+
+
+
+
+
