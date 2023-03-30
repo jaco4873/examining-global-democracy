@@ -14,6 +14,11 @@ knitr::opts_knit$set(root.dir = "/Users/jacoblillelund/Documents/applied-social-
 library(readxl)
 library(janitor)
 library(tidyverse)
+
+# write CSV scripts
+  # write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
+  # write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
+  # write.csv(worlddatabank_long, "worlddatabank_clean_long.csv", row.names = FALSE)
 ```
 
 # Load and clean data
@@ -25,7 +30,6 @@ freedomhouse <- freedomhouse %>%
   clean_names() %>%                                            # tidy data with janitor-package
   rename(country = country_territory, year = edition ) %>%     # rename column s
   select(c("country", "region", "c_t", "year", "pr", "cl", "total"))  # select relevant columns
-write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
 
 ### DEMOCRACY MATRIX RANKING ###
 democracy_matrix <- read_excel("democracy-matrix-ranking.xlsx", skip = 1, col_names = TRUE)
@@ -42,24 +46,14 @@ worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>%
   rename("country" = "Country Name", economic_variable = "Series Name")
 write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
 
-
-
 # create long-format-version
 worlddatabank_long <- pivot_longer(worlddatabank, 
   cols = 3:10, names_to = "year", values_to = "value") %>% 
   mutate(year = as.integer(year))
-write.csv(worlddatabank, "worlddatabank_clean_long.csv", row.names = FALSE)
 
-# Merge data: Freedom House Scores and Economic variables
-merged_data <- left_join(worlddatabank_long, freedomhouse, by = c("year", "country")) %>% 
-  relocate(region, .after = country) %>% 
-  relocate(value, .after = total) 
-
+# Merge data: Freedom House Scores and Economic variables - PYTHON
   
-
 # Create subsets of data
-
-
 
 ```
 
