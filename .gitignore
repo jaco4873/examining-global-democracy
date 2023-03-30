@@ -1,3 +1,10 @@
 # Ignore .DSSTORE
 .DS_Store
-.idea
+.iws
+workspace.xml
+tasks.xml
+misc.xml
+modules.xml
+vcs.xml
+profiles_settings.xml
+applied-social-science.iml
