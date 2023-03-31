@@ -44,22 +44,6 @@ worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>%
 worlddatabank_long <- pivot_longer(worlddatabank, 
   cols = 4:10, names_to = "year", values_to = "value") %>% # create long format on year variable
   mutate(year = as.integer(year))
-
-# Write CSV files for Python
-  # write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
-  # write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
-  # write.csv(worlddatabank_long, "worlddatabank_clean_long.csv", row.names = FALSE)
-
-# Dirty_cat merging in Python - Open Provided Python Script
-
-# Load Python dataset
-  
-### Create subsets of data ###
-
-# EEA Subset
-# define EEA countries in a vector
-eea <- c()
-
 ```
 
 # Compare democracy-indexes
@@ -80,6 +64,65 @@ index_comparison %>%
 # Check correlation
 cor(index_comparison$total, index_comparison$total_value_index)
 ```
+
+### Create country-subsets of data ###
+
+```{r}
+# EEA Subset
+eea <- c()
+
+# OECD Subset
+oecd <- 
+
+# EEA + OECD Subset
+  
+oecd_eea <-   
+```
+
+# Missing data for each subset
+```{r}
+# Extract variable names
+economic_variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
+
+# Initiate missing-data dataframe 
+missing_data_allcountries <- tibble(economic_variable)
+
+
+for (unique_variable in missing_data_allcountries$economic_variable) {
+  
+  for (year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019")) {
+  
+  na <- worlddatabank %>%
+            filter(economic_variable == unique_variable) %>% 
+            select(year) %>% 
+            summarize(num_na = sum(is.na(.)))
+  total <- worlddatabank %>%
+            filter(economic_variable == unique_variable) %>% 
+            select(year) %>% 
+            nrow()
+
+  missing_percentage <- as.numeric(na/total)
+
+  missing_data_allcountries[[year]][missing_data_allcountries$economic_variable == unique_variable] <- missing_percentage
+  }
+  
+}
+
+missing_data_allcountries <- rbind(missing_data_allcountries, c("Mean Missing Percentage", colMeans(missing_data_allcountries[1:5,2:8])))
+```
+
+# Merge dataframes for modelling
+```{r}
+# Write CSV files for Python
+  # write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
+  # write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
+  # write.csv(worlddatabank_long, "worlddatabank_clean_long.csv", row.names = FALSE)
+
+# Dirty_cat merging in Python - Open Provided Python Script
+
+# Load Python dataset
+```
+
 
 # Exploratory Data Analysis
 ```{r}
