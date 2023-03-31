@@ -14,11 +14,6 @@ knitr::opts_knit$set(root.dir = "/Users/jacoblillelund/Documents/applied-social-
 library(readxl)
 library(janitor)
 library(tidyverse)
-
-# write CSV scripts
-  # write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
-  # write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
-  # write.csv(worlddatabank_long, "worlddatabank_clean_long.csv", row.names = FALSE)
 ```
 
 # Load and clean data
@@ -28,7 +23,7 @@ library(tidyverse)
 freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
 freedomhouse <- freedomhouse %>% 
   clean_names() %>%                                            # tidy data with janitor-package
-  rename(country = country_territory, year = edition ) %>%     # rename column s
+  rename(country = country_territory, year = edition ) %>%     # rename columns
   select(c("country", "region", "c_t", "year", "pr", "cl", "total"))  # select relevant columns
 
 ### DEMOCRACY MATRIX RANKING ###
@@ -39,21 +34,31 @@ democracy_matrix <- democracy_matrix %>%
 
 ### MACROECONOMIC VARIABLES ###
 # Import and clean
-worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>% 
-  rename_at(vars(5:14), ~ substr(., 1, 4)) %>%   # rename "year"-columns
-  mutate_at(vars(5:14), as.integer) %>%          # convert observations to integers
-  select(-c(2, 4, 5, 14)) %>%                           # remove irrelevant columns
+worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>%  
+  rename_at(vars(5:11), ~ substr(., 1, 4)) %>%   # rename "year"-columns
+  mutate_at(vars(5:11), as.integer) %>%          # convert observations to integers
+  select(-c("Country Code")) %>%                 # exclude irrelevant column(s)
   rename("country" = "Country Name", economic_variable = "Series Name")
-write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
-
+  
 # create long-format-version
 worlddatabank_long <- pivot_longer(worlddatabank, 
-  cols = 3:10, names_to = "year", values_to = "value") %>% 
+  cols = 4:10, names_to = "year", values_to = "value") %>% # create long format on year variable
   mutate(year = as.integer(year))
 
-# Merge data: Freedom House Scores and Economic variables - PYTHON
+# Write CSV files for Python
+  # write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
+  # write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
+  # write.csv(worlddatabank_long, "worlddatabank_clean_long.csv", row.names = FALSE)
+
+# Dirty_cat merging in Python - Open Provided Python Script
+
+# Load Python dataset
   
-# Create subsets of data
+### Create subsets of data ###
+
+# EEA Subset
+# define EEA countries in a vector
+eea <- c()
 
 ```
 
