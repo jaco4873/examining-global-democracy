@@ -22,3 +22,35 @@ Our Intermediate Product is the creation of a Github Pages site on which we publ
 
 ### AP
 Our Advanced Product is self-critique as well as suggesting further studies. This will also be published on Github Pages.
+
+
+# EXAM TEMPLATE
+
+## Abstract
+
+## Introduction
+- A resource to investigate the relationship between democracy and economic variables (by providing codebase)
+- A benchmark model, which will be tested when new data is released on the databank
+- A challenge to others to create models with a higher predictions rate
+
+## Methodology
+
+- Variables chosen and why
+- Modelling choice
+
+## Codebase
+- Democracy Index comparison script
+- Missing data script
+- Data cleaning scripts
+- dirty_cat merging script
+- Model script 
+  - Assumption checking (collinearity)
+
+## Database
+- Links
+- Names of worldbank series
+
+## Unanswered questions and future work
+- Challenges: Causality
+
+## Conclusions

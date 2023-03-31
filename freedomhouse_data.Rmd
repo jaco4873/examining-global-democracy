@@ -7,62 +7,77 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
 
-# Call packages and load data
-```{r}
+# Set working directory
+knitr::opts_knit$set(root.dir = "/Users/jacoblillelund/Documents/applied-social-science/data")
+
 library(readxl)
 library(janitor)
 library(tidyverse)
 
-setwd("/Users/jacoblillelund/Documents/applied-social-science")
-
-# load data 
-
-# FREEDOM HOUSE
-fw_data <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
-
-fw_data <- fw_data %>% # tidy data with janitor-package
-  clean_names()
-
-fw_data <- fw_data %>% rename(country = country_territory) # rename column
-
-# DEMOCRACY MATRIX RANKING
-dmr_data <- read_excel("democracy-matrix-ranking.xlsx", skip = 1, col_names = TRUE)
-dmr_data <- dmr_data %>% # tidy data with janitor-package
-  clean_names()
-
-dmr_data <- dmr_data %>% select(country, total_value_index) # select values
+# write CSV scripts
+  # write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
+  # write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
+  # write.csv(worlddatabank_long, "worlddatabank_clean_long.csv", row.names = FALSE)
 ```
-# Compare the two ranking projects
+
+# Load and clean data
+```{r}
+### FREEDOM HOUSE ###
+# import and clean
+freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
+freedomhouse <- freedomhouse %>% 
+  clean_names() %>%                                            # tidy data with janitor-package
+  rename(country = country_territory, year = edition ) %>%     # rename column s
+  select(c("country", "region", "c_t", "year", "pr", "cl", "total"))  # select relevant columns
+
+### DEMOCRACY MATRIX RANKING ###
+democracy_matrix <- read_excel("democracy-matrix-ranking.xlsx", skip = 1, col_names = TRUE)
+democracy_matrix <- democracy_matrix %>% 
+  clean_names() %>%                  # tidy data with janitor-package
+  select(country, total_value_index) # select columns
+
+### MACROECONOMIC VARIABLES ###
+# Import and clean
+worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>% 
+  rename_at(vars(5:14), ~ substr(., 1, 4)) %>%   # rename "year"-columns
+  mutate_at(vars(5:14), as.integer) %>%          # convert observations to integers
+  select(-c(2, 4, 5, 14)) %>%                           # remove irrelevant columns
+  rename("country" = "Country Name", economic_variable = "Series Name")
+write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
+
+# create long-format-version
+worlddatabank_long <- pivot_longer(worlddatabank, 
+  cols = 3:10, names_to = "year", values_to = "value") %>% 
+  mutate(year = as.integer(year))
+
+# Merge data: Freedom House Scores and Economic variables - PYTHON
+  
+# Create subsets of data
+
+```
+
+# Compare democracy-indexes
 ```{r}
 # Merge dataframes
-
-fw_data_mergeready <-  fw_data %>% filter(edition == 2020) # filter for relevant year
-
-# join the two data frames by the 'country' column
-merged_data <- left_join(fw_data_mergeready, dmr_data, by = "country")
-
-# Wrangle
-merged_data_total_values <- merged_data %>%  
+index_comparison <- freedomhouse %>% filter(year == 2020) %>% 
+  left_join(democracy_matrix, by = "country") %>% 
   select(country, total, total_value_index) %>%  # select relevant columns
   filter(!is.na(total_value_index)) %>% # filter for rows with missing values (territories are not included in Democracy Matrix ranking)
   mutate(total_value_index = total_value_index/10) # scale the democracy ranking to 0-100 from 0-1000
 
 # Draw Scatterplot
-merged_data_total_values %>% 
+index_comparison %>% 
   ggplot(aes(x = total, y = total_value_index, label = country)) +
   geom_text() +
   geom_smooth(method = "lm", se = FALSE)
 
 # Check correlation
-cor(merged_data_total_values$total, merged_data_total_values$total_value_index)
+cor(index_comparison$total, index_comparison$total_value_index)
 ```
-
 
 # Exploratory Data Analysis
 ```{r}
-inspect <- fw_data %>% select(country, edition, a, b, c, add_q, add_a, pr, d, e, f, g, cl, total)
-inspect
+
 ```
 

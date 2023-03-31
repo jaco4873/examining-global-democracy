@@ -1,0 +1,155 @@
+---
+title: "data exploration til applied"
+author: "Hugo von Essen-Müller"
+date: "2023-03-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# install and load the readxl package
+library(car)
+library(readxl)
+library(naniar)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(visdat)
+library(imputeMissings)
+library(lubridate)
+```
+
+```{r}
+getwd()
+```
+
+```{r}
+# set the working directory to where the file is located
+setwd("/Users/hugov/UNI/semester02")
+```
+
+
+```{r}
+# read the Excel file into a data frame
+data <- read_excel("P_Data_Extract_From_World_Development_Indicators.xlsx")
+
+# view the first few rows of the data frame
+head(data)
+```
+
+```{r}
+# visualize the missingness structure
+gg_miss_var(data)  # missingness by variable
+gg_miss_upset(data)  # upset plot of missingness patterns
+```
+
+```{r}
+# calculate summary statistics of missing data
+miss_summary(data)
+miss_var_summary(data)
+miss_case_summary(data)
+```
+
+
+```{r}
+apply(data,2, function(x) sum(is.na(x)))
+apply(data,2, function(x) sum(x == ".."))
+data[data == ".."] <- NA
+View(data)
+```
+```{r}
+df <- data[-c(2605:3197), ]
+```
+
+```{r}
+
+# create a vector of EEA country names
+eea_countries <- c("Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", 
+                    "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", 
+                    "Iceland", "Ireland", "Italy", "Latvia", "Liechtenstein", "Lithuania", 
+                    "Luxembourg", "Malta", "Netherlands", "Norway", "Poland", "Portugal", 
+                    "Romania", "Slovak Republic", "Slovenia", "Spain", "Sweden", "Switzerland")
+
+# filter the data frame to include only EEA countries
+eea_data <- df %>% filter(`Country Name` %in% eea_countries)
+```
+
+```{r}
+eea_data <- rename(eea_data, "2013" = "2013 [YR2013]")
+eea_data <- rename(eea_data, "2014" = "2014 [YR2014]")
+eea_data <- rename(eea_data, "2015" = "2015 [YR2015]")
+eea_data <- rename(eea_data, "2016" = "2016 [YR2016]")
+eea_data <- rename(eea_data, "2017" = "2017 [YR2017]")
+eea_data <- rename(eea_data, "2018" = "2018 [YR2018]")
+eea_data <- rename(eea_data, "2019" = "2019 [YR2019]")
+```
+
+```{r}
+eea_data <- eea_data %>% select(-c("Country Code", "Series Code", "2020 [YR2020]"))
+
+```
+
+```{r}
+eea_data <- eea_data[-c(193:204), ]
+```
+
+```{r}
+vis_miss(eea_data)
+```
+
+```{r}
+df_long <- pivot_longer(eea_data, cols = 3:9, names_to = "Year", values_to = "Value")
+```
+
+```{r}
+eea_wide <- pivot_wider(df_long, names_from = "Series Name", values_from = "Value")
+```
+
+```{r}
+eea_numbers <- eea_wide %>% select(-c("Country Name", "Year"))
+eea_numbers[] <- lapply(eea_numbers, as.numeric)
+```
+
+```{r}
+cor(eea_numbers)
+```
+
+```{r}
+eea_numbers <- impute(eea_numbers, method = "median/mode")
+```
+
+```{r}
+cor(eea_numbers)
+```
+
+```{r}
+model <- lm(`Adjusted.net.national.income.per.capita..constant.2015.US..` ~ `GDP.per.capita..constant.2015.US..` + `GDP.per.capita.growth..annual...` + `GNI.per.capita..constant.2015.US..` + `Gross.fixed.capital.formation..constant.2015.US..` + `Income.share.held.by.highest.20.` + `Income.share.held.by.lowest.20.` + `Gini.index` + `Imports.of.goods.and.services..constant.2015.US..` + `Research.and.development.expenditure....of.GDP.` + `Tax.revenue....of.GDP.` + `Total.natural.resources.rents....of.GDP.`, data = eea_numbers)
+
+model2 <- lm(`GDP.per.capita..constant.2015.US..` ~ `GDP.per.capita.growth..annual...` + `GNI.per.capita..constant.2015.US..` + `Gross.fixed.capital.formation..constant.2015.US..` + `Income.share.held.by.highest.20.` + `Income.share.held.by.lowest.20.` + `Gini.index` + `Imports.of.goods.and.services..constant.2015.US..` + `Research.and.development.expenditure....of.GDP.` + `Tax.revenue....of.GDP.` + `Total.natural.resources.rents....of.GDP.` + `Adjusted.net.national.income.per.capita..constant.2015.US..`, data = eea_numbers)
+
+model3 <- lm(`GDP.per.capita.growth..annual...` ~ `GNI.per.capita..constant.2015.US..` + `Gross.fixed.capital.formation..constant.2015.US..` + `Income.share.held.by.highest.20.` + `Income.share.held.by.lowest.20.` + `Gini.index` + `Imports.of.goods.and.services..constant.2015.US..` + `Research.and.development.expenditure....of.GDP.` + `Tax.revenue....of.GDP.` + `Total.natural.resources.rents....of.GDP.` + `Adjusted.net.national.income.per.capita..constant.2015.US..` + `GDP.per.capita..constant.2015.US..`, data = eea_numbers)
+
+model4 <- lm(`GNI.per.capita..constant.2015.US..` ~ `Gross.fixed.capital.formation..constant.2015.US..` + `Income.share.held.by.highest.20.` + `Income.share.held.by.lowest.20.` + `Gini.index` + `Imports.of.goods.and.services..constant.2015.US..` + `Research.and.development.expenditure....of.GDP.` + `Tax.revenue....of.GDP.` + `Total.natural.resources.rents....of.GDP.` + `Adjusted.net.national.income.per.capita..constant.2015.US..` + `GDP.per.capita..constant.2015.US..` + `GDP.per.capita.growth..annual...`, data = eea_numbers)
+
+model5 <- lm(`Gross.fixed.capital.formation..constant.2015.US..` ~ `Income.share.held.by.highest.20.` + `Income.share.held.by.lowest.20.` + `Gini.index` + `Imports.of.goods.and.services..constant.2015.US..` + `Research.and.development.expenditure....of.GDP.` + `Tax.revenue....of.GDP.` + `Total.natural.resources.rents....of.GDP.` + `Adjusted.net.national.income.per.capita..constant.2015.US..` + `GDP.per.capita..constant.2015.US..` + `GDP.per.capita.growth..annual...` + `GNI.per.capita..constant.2015.US..`, data = eea_numbers)
+
+model6 <- lm(`GDP.per.capita.growth..annual...` ~ `Imports.of.goods.and.services..constant.2015.US..` + `Research.and.development.expenditure....of.GDP.` + `Tax.revenue....of.GDP.` + `Total.natural.resources.rents....of.GDP.`, data = eea_numbers)
+
+
+
+vif(model)
+vif(model2)
+vif(model3)
+vif(model4)
+vif(model5)
+vif(model6)
+```
+
+```{r}
+eea_good_variables <- select(eea_wide, "Country Name", "Year", `GDP per capita growth (annual %)`, `Imports of goods and services (constant 2015 US$)`, `Research and development expenditure (% of GDP)`, `Tax revenue (% of GDP)`, `Total natural resources rents (% of GDP)`)
+```
+
