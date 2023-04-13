@@ -32,7 +32,7 @@ democracy_matrix <- democracy_matrix %>%
   clean_names() %>%                  # tidy data with janitor-package
   select(country, total_value_index) # select columns
 
-### MACROECONOMIC VARIABLES ###
+### WORLD DATA BANK MACROECONOMIC VARIABLES ###
 # Import and clean
 worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>%  
   rename_at(vars(5:11), ~ substr(., 1, 4)) %>%   # rename "year"-columns
@@ -65,25 +65,56 @@ index_comparison %>%
 cor(index_comparison$total, index_comparison$total_value_index)
 ```
 
-### Create country-subsets of data ###
+# Create country-subsets of data ###
 
+## EEA Subset (excluding Liechtenstein due to missing data)
 ```{r}
-# EEA Subset
-eea <- c()
+# Check that the country-names in the below string are exactly as in the world data bank
+eea <- c("Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", 
+                    "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", 
+                    "Iceland", "Ireland", "Italy", "Latvia", "Lithuania", 
+                    "Luxembourg", "Malta", "Netherlands", "Norway", "Poland", "Portugal", 
+                    "Romania", "Slovak Republic", "Slovenia", "Spain", "Sweden", "Switzerland")
 
-# OECD Subset
-oecd <- 
+# Check number of countries in string
+length(eea)
 
-# EEA + OECD Subset
-  
-oecd_eea <-   
+# Filter relevant rows. The number of rows should equal length(eea)*number of variables
+worlddatabank_eea <- worlddatabank %>% 
+  filter(country %in% eea)
 ```
 
-# Missing data for each subset
+## EEA + OECD Subset
+```{r}
+# List OECD countries 
+oecd <- c("Australia", "Austria", "Belgium", "Canada", "Chile", "Colombia",
+              "Czechia", "Denmark", "Estonia", "Finland", "France", "Germany",
+              "Greece", "Hungary", "Iceland", "Ireland", "Israel", "Italy", "Japan",
+              "Korea, Rep.", "Latvia", "Lithuania", "Luxembourg", "Mexico", "Netherlands",
+              "New Zealand", "Norway", "Poland", "Portugal", "Slovak Republic", "Slovenia",
+              "Spain", "Sweden", "Switzerland", "Turkiye", "United Kingdom", "United States",
+              "Costa Rica")
+
+#Create unique string of oecd+eea countries
+oecd_eea <- unique(c(oecd, eea))
+
+# Check number of countries in string
+length(oecd_eea)
+  
+# Filter relevant rows. The number of rows should equal length(oecd_eea)*number of variables
+worlddatabank_oecd_eea  <- worlddatabank %>% 
+  filter(country %in% oecd_eea)
+```
+
+# Missing data calculations for each subset
+
 ```{r}
 # Extract variable names
 economic_variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
+```
 
+## All countries
+```{r}
 # Initiate missing-data dataframe 
 missing_data_allcountries <- tibble(economic_variable)
 
@@ -109,6 +140,70 @@ for (unique_variable in missing_data_allcountries$economic_variable) {
 }
 
 missing_data_allcountries <- rbind(missing_data_allcountries, c("Mean Missing Percentage", colMeans(missing_data_allcountries[1:5,2:8])))
+
+missing_data_allcountries
+```
+
+## EEA
+```{r}
+# Initiate missing-data dataframe 
+missing_data_eea <- tibble(economic_variable)
+
+
+for (unique_variable in missing_data_eea$economic_variable) {
+  
+  for (year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019")) {
+  
+  na <- worlddatabank_eea %>%
+            filter(economic_variable == unique_variable) %>% 
+            select(year) %>% 
+            summarize(num_na = sum(is.na(.)))
+  total <- worlddatabank_eea %>%
+            filter(economic_variable == unique_variable) %>% 
+            select(year) %>% 
+            nrow()
+
+  missing_percentage <- as.numeric(na/total)
+
+  missing_data_eea[[year]][missing_data_eea$economic_variable == unique_variable] <- missing_percentage
+  }
+  
+}
+
+missing_data_eea <- rbind(missing_data_eea, c("Mean Missing Percentage", colMeans(missing_data_eea[1:5,2:8])))
+
+missing_data_eea
+```
+
+## EEA + OECD
+```{r}
+# Initiate missing-data dataframe 
+missing_data_oecd_eea <- tibble(economic_variable)
+
+
+for (unique_variable in missing_data_oecd_eea$economic_variable) {
+  
+  for (year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019")) {
+  
+  na <- worlddatabank_oecd_eea %>%
+            filter(economic_variable == unique_variable) %>% 
+            select(year) %>% 
+            summarize(num_na = sum(is.na(.)))
+  total <- worlddatabank_oecd_eea %>%
+            filter(economic_variable == unique_variable) %>% 
+            select(year) %>% 
+            nrow()
+
+  missing_percentage <- as.numeric(na/total)
+
+  missing_data_oecd_eea[[year]][missing_data_oecd_eea$economic_variable == unique_variable] <- missing_percentage
+  }
+  
+}
+
+missing_data_oecd_eea <- rbind(missing_data_oecd_eea, c("Mean Missing Percentage", colMeans(missing_data_oecd_eea[1:5,2:8])))
+
+missing_data_oecd_eea
 ```
 
 # Merge dataframes for modelling
