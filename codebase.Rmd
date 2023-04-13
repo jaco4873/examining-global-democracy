@@ -60,10 +60,14 @@ index_comparison %>%
   ggplot(aes(x = total, y = total_value_index, label = country)) +
   geom_text() +
   geom_smooth(method = "lm", se = FALSE)
-
+```
+```{r}
 # Check correlation
 cor(index_comparison$total, index_comparison$total_value_index)
 ```
+
+We can see that the freedomhouse democracy index has a very high correlation with the democracy matrix. 
+
 
 # Create country-subsets of data ###
 
@@ -205,6 +209,9 @@ missing_data_oecd_eea <- rbind(missing_data_oecd_eea, c("Mean Missing Percentage
 
 missing_data_oecd_eea
 ```
+
+# Modelling
+Based on the missing data, we have decided to model based on OECD + EEA countries 
 
 # Merge dataframes for modelling
 ```{r}
