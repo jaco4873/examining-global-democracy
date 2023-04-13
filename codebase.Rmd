@@ -38,17 +38,13 @@ worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>%
   rename_at(vars(5:11), ~ substr(., 1, 4)) %>%   # rename "year"-columns
   mutate_at(vars(5:11), as.integer) %>%          # convert observations to integers
   select(-c("Country Code")) %>%                 # exclude irrelevant column(s)
-  rename("country" = "Country Name", economic_variable = "Series Name")
-  
-# create long-format-version
-worlddatabank_long <- pivot_longer(worlddatabank, 
-  cols = 4:10, names_to = "year", values_to = "value") %>% # create long format on year variable
-  mutate(year = as.integer(year))
+  rename("country" = "Country Name", economic_variable = "Series Name", series_code = "Series Code")
 ```
 
 # Compare democracy-indexes
 ```{r}
 # Merge dataframes
+# We compare 2020, as this is the year the democracy matrix is modelled on
 index_comparison <- freedomhouse %>% filter(year == 2020) %>% 
   left_join(democracy_matrix, by = "country") %>% 
   select(country, total, total_value_index) %>%  # select relevant columns
@@ -211,18 +207,79 @@ missing_data_oecd_eea
 ```
 
 # Modelling
-Based on the missing data, we have decided to model based on OECD + EEA countries 
+Based on the missing data for the macroeconomic variables, we have decided to model based on OECD + EEA countries for 2019 and excluding the Gini-coefficient-variable. 
 
-# Merge dataframes for modelling
+For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
+
+Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. GIven the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
+
+Furthermore, as we have settled on a broader set of countries than solely EEA and through our research have discovered that the Gini-coefficient are not necessarily reported using the same standards of calculations, we exclude this variable in our model.
+
+## Filter final dataset to only include 2019 data excluding the Gini-variable
+```{r}
+worlddatabank_oecd_eea_2019 <- worlddatabank_oecd_eea %>%
+  select(country, economic_variable, `series_code`, '2019') %>% 
+  filter(economic_variable != "Gini index") %>% 
+  rename(value = year )
+```
+
+## Filter freedomhouse-data for 2019 only
+```{r}
+freedomhouse_2019 <- freedomhouse %>%
+  filter(year == 2019)
+```
+
+## Merge our final World Data Bank dataset with the freedomhouse in Python
+### Prepare CSV Files for Python and open provided script
 ```{r}
 # Write CSV files for Python
-  # write.csv(freedomhouse, "freedomhouse.csv", row.names = FALSE)
-  # write.csv(worlddatabank, "worlddatabank_clean.csv", row.names = FALSE)
-  # write.csv(worlddatabank_long, "worlddatabank_clean_long.csv", row.names = FALSE)
+write.csv(freedomhouse_2019, "freedomhouse_2019.csv", row.names = FALSE)
+write.csv(worlddatabank_oecd_eea_2019, "worlddatabank_oecd_eea_2019.csv", row.names = FALSE)
 
 # Dirty_cat merging in Python - Open Provided Python Script
+```
 
-# Load Python dataset
+Merging the dataset worlddatabank_oecd_eea_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries.
+
+The dirty_cat package merges the two different datasets over the columnn country, but does it in a smart way where it matches dynamically scoring a match between 0-1 after how well the strings match.
+
+For instance, "Turkiye" from the world data bank matches quite well with "Turkey" from freedomhouse. The score is included in the match. By sorting the "score" column, we can easily inspect those matches that are not perfect, and evaluate whether to set a threshold value of matches to include, or whether it is more optimal to manually change a few country-names in the freedomhouse dataset.
+
+### Load CSV filed written by the Python Script
+```{r}
+modelling_data <- read_csv("modelling_data.csv")
+```
+By reviewing our resulting data-set and sorting by the "score" column, it becomes obvious that four countries from our oecd_eea list of countries does not have an exact or correct match in the freedomhouse_2019 data set. 
+
+Since it is only four countries, we have decided to manually rename those in the freedomhouse_2019:
+
+1. "Turkiye" is named "Turkey"
+2. "Czechia" is named "Czech Republic"
+3. "Korea, Rep." is matched with "North Korea" and should be matched with "South Korea" 
+4. "Slovak Republic" is matched with "Czech Republic" and should be matched with "Slovakia"
+
+
+```{r}
+freedomhouse_2019 <- freedomhouse_2019 %>% 
+  mutate(country = case_when(
+    country == "Turkey" ~ "Turkiye",
+    country == "Czech Republic" ~ "Czechia",
+    country == "South Korea" ~ "Korea, Rep.",
+    country == "Slovakia" ~ "Slovak Republic",
+    TRUE ~ country  # keep all other countries unchanged
+  ))
+```
+
+We should now be able to simply merge the data sets in R:
+
+```{r}
+# Join using left join to only merge for the rows which we are interested
+modelling_data_final <- left_join(worlddatabank_oecd_eea_2019, freedomhouse_2019, by = "country")
+
+# Select only relevant rows:
+colnames(modelling_data_final)
+modelling_data_final <- modelling_data_final %>% 
+  select(-c("year", "c_t", "region"))
 ```
 
 

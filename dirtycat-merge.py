@@ -6,15 +6,15 @@ from dirty_cat import fuzzy_join
 import warnings
 
 # Load Data
-freedomhouse = pd.read_csv('data/freedomhouse.csv')
-worlddatabank_clean_long = pd.read_csv("data/worlddatabank_clean_long.csv")
+freedomhouse_2019 = pd.read_csv('data/freedomhouse_2019.csv')
+worlddatabank_oecd_eea_2019 = pd.read_csv("data/worlddatabank_oecd_eea_2019.csv")
 
-# Join by Fuzzy Join
+# Merge by Fuzzy Join
 warnings.filterwarnings("ignore")
 
 merged_data = fuzzy_join(
-    worlddatabank_clean_long,  # our table to join
-    freedomhouse,  # the table to join with
+    worlddatabank_oecd_eea_2019,  # our table to join
+    freedomhouse_2019,  # the table to join with
     left_on="country",  # the first join key column
     right_on="country",  # the second join key column
     return_score=True,
@@ -32,4 +32,4 @@ def print_worst_matches(joined_table, n=5):
     worst_matches = worst_matches.assign(matching_score=max_dist)
     return worst_matches
 
-merged_data.to_csv('fuzzy_merge_data.csv', index=True)
+merged_data.to_csv('modelling_data.csv', index=True)

@@ -1,0 +1,216 @@
+"country","economic_variable","series_code","value"
+"Australia","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Australia","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",58870
+"Australia","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Australia","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",23
+"Australia","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",5
+"Austria","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Austria","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",46647
+"Austria","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",3
+"Austria","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",25
+"Austria","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Belgium","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Belgium","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",43098
+"Belgium","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",3
+"Belgium","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",22
+"Belgium","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Bulgaria","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",4
+"Bulgaria","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",8234
+"Bulgaria","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Bulgaria","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",20
+"Bulgaria","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Canada","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Canada","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",45109
+"Canada","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Canada","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",12
+"Canada","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",1
+"Chile","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",0
+"Chile","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",13765
+"Chile","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Chile","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",17
+"Chile","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",4
+"Colombia","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",3
+"Colombia","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",6403
+"Colombia","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Colombia","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",15
+"Colombia","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",4
+"Costa Rica","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Costa Rica","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",12662
+"Costa Rica","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",NA
+"Costa Rica","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",13
+"Costa Rica","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Croatia","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",3
+"Croatia","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",14071
+"Croatia","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Croatia","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",21
+"Croatia","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Cyprus","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",5
+"Cyprus","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",28359
+"Cyprus","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Cyprus","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",23
+"Cyprus","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Czechia","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",3
+"Czechia","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",20206
+"Czechia","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Czechia","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",14
+"Czechia","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Denmark","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Denmark","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",57203
+"Denmark","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",2
+"Denmark","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",34
+"Denmark","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Estonia","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",3
+"Estonia","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",20269
+"Estonia","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Estonia","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",21
+"Estonia","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",1
+"Finland","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Finland","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",46135
+"Finland","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",2
+"Finland","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",20
+"Finland","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"France","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"France","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",38832
+"France","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",2
+"France","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",24
+"France","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Germany","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Germany","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",43284
+"Germany","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",3
+"Germany","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",11
+"Germany","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Greece","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Greece","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",19018
+"Greece","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Greece","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",26
+"Greece","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Hungary","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",4
+"Hungary","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",15082
+"Hungary","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Hungary","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",22
+"Hungary","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Iceland","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Iceland","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",57806
+"Iceland","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",2
+"Iceland","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",21
+"Iceland","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Ireland","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",5
+"Ireland","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",75239
+"Ireland","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Ireland","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",17
+"Ireland","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Israel","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",4
+"Israel","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",39591
+"Israel","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",5
+"Israel","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",22
+"Israel","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Italy","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",0
+"Italy","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",32114
+"Italy","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Italy","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",24
+"Italy","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Japan","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",0
+"Japan","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",36081
+"Japan","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",3
+"Japan","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",NA
+"Japan","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Korea, Rep.","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Korea, Rep.","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",31640
+"Korea, Rep.","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",4
+"Korea, Rep.","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",15
+"Korea, Rep.","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Latvia","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Latvia","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",16069
+"Latvia","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Latvia","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",21
+"Latvia","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",1
+"Lithuania","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",4
+"Lithuania","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",17249
+"Lithuania","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Lithuania","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",19
+"Lithuania","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Luxembourg","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Luxembourg","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",106729
+"Luxembourg","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Luxembourg","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",26
+"Luxembourg","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Malta","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",5
+"Malta","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",28375
+"Malta","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Malta","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",24
+"Malta","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Mexico","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",0
+"Mexico","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",10013
+"Mexico","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Mexico","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",13
+"Mexico","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",2
+"Netherlands","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Netherlands","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",48443
+"Netherlands","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",2
+"Netherlands","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",24
+"Netherlands","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"New Zealand","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"New Zealand","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",40599
+"New Zealand","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"New Zealand","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",28
+"New Zealand","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",1
+"Norway","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",0
+"Norway","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",76005
+"Norway","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",2
+"Norway","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",23
+"Norway","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",6
+"Poland","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",4
+"Poland","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",15053
+"Poland","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Poland","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",17
+"Poland","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Portugal","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Portugal","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",21617
+"Portugal","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Portugal","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",22
+"Portugal","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Romania","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",3
+"Romania","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",11252
+"Romania","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Romania","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",14
+"Romania","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Slovak Republic","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"Slovak Republic","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",18242
+"Slovak Republic","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",0
+"Slovak Republic","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",18
+"Slovak Republic","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Slovenia","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",3
+"Slovenia","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",24125
+"Slovenia","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",2
+"Slovenia","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",18
+"Slovenia","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Spain","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Spain","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",28087
+"Spain","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Spain","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",13
+"Spain","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Sweden","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Sweden","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",53490
+"Sweden","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",3
+"Sweden","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",27
+"Sweden","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Switzerland","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"Switzerland","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",87123
+"Switzerland","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",3
+"Switzerland","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",9
+"Switzerland","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"Turkiye","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",0
+"Turkiye","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",11935
+"Turkiye","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"Turkiye","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",16
+"Turkiye","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"United Kingdom","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",1
+"United Kingdom","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",47491
+"United Kingdom","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",1
+"United Kingdom","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",25
+"United Kingdom","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
+"United States","GDP growth (annual %)","NY.GDP.MKTP.KD.ZG",2
+"United States","GDP per capita (constant 2015 US$)","NY.GDP.PCAP.KD",60698
+"United States","Research and development expenditure (% of GDP)","GB.XPD.RSDV.GD.ZS",3
+"United States","Tax revenue (% of GDP)","GC.TAX.TOTL.GD.ZS",10
+"United States","Total natural resources rents (% of GDP)","NY.GDP.TOTL.RT.ZS",0
