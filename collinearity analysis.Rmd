@@ -1,0 +1,133 @@
+---
+title: "Collinearity"
+author: "Hugo von Essen-Müller"
+date: "2023-04-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# install and load the readxl package
+library(knitr)
+library(car)
+library(readxl)
+library(naniar)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(visdat)
+library(imputeMissings)
+library(lubridate)
+library(corrplot)
+pacman::p_load(Hmisc)
+pacman::p_load(kableExtra)
+```
+
+```{r}
+getwd()
+```
+
+```{r}
+# set the working directory to where the file is located
+
+list.files()
+```
+
+```{r}
+# read the Excel file into a data frame
+data <- read_csv("worlddatabank_clean_long.csv")
+
+# view the first few rows of the data frame
+head(data)
+```
+
+```{r}
+
+# create a vector of EEA country names
+eea_countries <- c("Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", 
+                    "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", 
+                    "Iceland", "Ireland", "Italy", "Latvia", "Liechtenstein", "Lithuania", 
+                    "Luxembourg", "Malta", "Netherlands", "Norway", "Poland", "Portugal", 
+                    "Romania", "Slovak Republic", "Slovenia", "Spain", "Sweden", "Switzerland")
+
+# filter the data frame to include only EEA countries
+eea_data <- data %>% filter(`country` %in% eea_countries)
+```
+
+```{r}
+eea_data <- eea_data %>% select(-c("Series Code"))
+
+eea_wide <- pivot_wider(eea_data, names_from = "economic_variable", values_from = "value")
+
+names(eea_wide)
+
+eea_wide <- subset(eea_wide, country != "Liechtenstein")
+
+eea_numbers <- eea_wide %>% select(-c("country", "year"))
+
+```
+
+```{r}
+cor_mat <- cor(eea_numbers)
+
+# calculate the VIFs
+vif_vec <- vif(lm(`GDP growth (annual %)` ~ `GDP per capita (constant 2015 US$)`  + `Gini index` + `Research and development expenditure (% of GDP)` + `Tax revenue (% of GDP)`  + `Total natural resources rents (% of GDP)`, data = eea_numbers))
+
+# combine the correlation matrix and VIFs into a table
+corr_table <- cbind(cor_mat, vif_vec)
+
+# print the table
+print(corr_table)
+```
+
+```{r}
+
+# calculate correlation matrix
+corr_matrix <- cor(eea_numbers)
+
+# calculate VIF values for each variable
+vif_values <- vif(lm(`GDP growth (annual %)` ~ `GDP per capita (constant 2015 US$)`  + `Gini index` + `Research and development expenditure (% of GDP)` + `Tax revenue (% of GDP)`  + `Total natural resources rents (% of GDP)`, data = eea_numbers))
+
+# add VIF values to correlation matrix data frame
+corr_matrix_with_vif <- cbind(corr_matrix, VIF = vif_values)
+
+# format correlation matrix with VIF values as table
+corr_table <- corr_matrix_with_vif %>%
+  as.data.frame() %>%
+  round(2) %>%
+  kable(format = "html", digits = 2, caption = "VIF Matrix") %>%
+  kable_paper("hover", full_width = F)
+  
+
+# print table
+print(corr_table)
+```
+
+```{r}
+vif_values_gdp_growth <- vif(lm(`GDP growth (annual %)` ~ `GDP per capita (constant 2015 US$)`  + `Gini index` + `Research and development expenditure (% of GDP)` + `Tax revenue (% of GDP)`  + `Total natural resources rents (% of GDP)`, data = eea_numbers))
+
+vif_values_gdp_capita <- vif(lm(`GDP per capita (constant 2015 US$)` ~  `Gini index` + `Research and development expenditure (% of GDP)` + `Tax revenue (% of GDP)`  + `Total natural resources rents (% of GDP)` + `GDP growth (annual %)`, data = eea_numbers))
+
+vif_values_gini <- vif(lm(`Gini index` ~  `Research and development expenditure (% of GDP)` + `Tax revenue (% of GDP)`  + `Total natural resources rents (% of GDP)` + `GDP growth (annual %)` + `GDP per capita (constant 2015 US$)`, data = eea_numbers))
+
+vif_values_rnd <- vif(lm(`Research and development expenditure (% of GDP)` ~ `Tax revenue (% of GDP)`  + `Total natural resources rents (% of GDP)` + `GDP growth (annual %)` + `GDP per capita (constant 2015 US$)` + `Gini index`, data = eea_numbers))
+
+vif_values_tax <- vif(lm( `Tax revenue (% of GDP)` ~ `Total natural resources rents (% of GDP)` + `GDP growth (annual %)` + `GDP per capita (constant 2015 US$)` + `Gini index` + `Research and development expenditure (% of GDP)`, data = eea_numbers))
+
+vif_values_tnr <- vif(lm( `Total natural resources rents (% of GDP)` ~ `GDP growth (annual %)` + `GDP per capita (constant 2015 US$)` + `Gini index` + `Research and development expenditure (% of GDP)` + `Tax revenue (% of GDP)`, data = eea_numbers))
+```
+
+```{r}
+vif_matrix <- cbind(vif_values_gdp_capita, vif_values_gdp_growth, vif_values_gini, vif_values_rnd, vif_values_tax, vif_values_tnr )
+
+corr_table_vif <- vif_matrix %>%
+  as.data.frame() %>%
+  round(2) %>%
+  kable(format = "html", digits = 2, caption = "VIF Matrix") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
