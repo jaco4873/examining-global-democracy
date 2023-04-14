@@ -1,6 +1,6 @@
 ---
-title: "Democracy & Macroeconomics"
-author: "Jacob Lillelund"
+title: "Democracy & The Wealth of Nations"
+author: "Jacob, Hugo and Jonathan"
 date: "2023-02-28"
 output: html_document
 ---
@@ -14,10 +14,13 @@ knitr::opts_knit$set(root.dir = "/Users/jacoblillelund/Documents/applied-social-
 library(readxl)
 library(janitor)
 library(tidyverse)
+library(fastDummies)
+library(fedmatch)
+library(broom)
 ```
 
 # Load and clean data
-```{r}
+```{r warning=FALSE}
 ### FREEDOM HOUSE ###
 # import and clean
 freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
@@ -34,15 +37,15 @@ democracy_matrix <- democracy_matrix %>%
 
 ### WORLD DATA BANK MACROECONOMIC VARIABLES ###
 # Import and clean
-worlddatabank <- read_csv("worlddatabank.csv",show_col_types = FALSE) %>%  
+worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE) %>%  
   rename_at(vars(5:11), ~ substr(., 1, 4)) %>%   # rename "year"-columns
-  mutate_at(vars(5:11), as.integer) %>%          # convert observations to integers
+  mutate_at(vars(5:11), as.numeric) %>%          # convert observations to integers
   select(-c("Country Code")) %>%                 # exclude irrelevant column(s)
   rename("country" = "Country Name", economic_variable = "Series Name", series_code = "Series Code")
 ```
 
 # Compare democracy-indexes
-```{r}
+```{r warning=FALSE}
 # Merge dataframes
 # We compare 2020, as this is the year the democracy matrix is modelled on
 index_comparison <- freedomhouse %>% filter(year == 2020) %>% 
@@ -273,18 +276,181 @@ freedomhouse_2019 <- freedomhouse_2019 %>%
 We should now be able to simply merge the data sets in R:
 
 ```{r}
+
 # Join using left join to only merge for the rows which we are interested
-modelling_data_final <- left_join(worlddatabank_oecd_eea_2019, freedomhouse_2019, by = "country")
+modelling_data <- left_join(worlddatabank_oecd_eea_2019, freedomhouse_2019, by = "country")
 
 # Select only relevant rows:
-colnames(modelling_data_final)
-modelling_data_final <- modelling_data_final %>% 
+colnames(modelling_data)
+modelling_data <- modelling_data %>% 
   select(-c("year", "c_t", "region"))
+
+# Convert into wide-format for modelling and exploration of data
+modelling_data_wide<- modelling_data %>%
+  pivot_wider(names_from = economic_variable, values_from = value, id_cols = c("country", "pr", "cl", "total"))
 ```
 
-
-# Exploratory Data Analysis
+# Creating model(s)
 ```{r}
 
+
+# Select the predictor variables to be normalized
+predictor_vars <- c("GDP growth (annual %)", 
+                    "GDP per capita (constant 2015 US$)",
+                    "Research and development expenditure (% of GDP)",
+                    "Tax revenue (% of GDP)",
+                    "Total natural resources rents (% of GDP)")
+
+# Normalize the predictor variables
+modelling_data_wide_norm <- modelling_data_wide
+modelling_data_wide_norm[predictor_vars] <- scale(modelling_data_wide_norm[predictor_vars])
+
+# Fit the linear regression model with the normalized predictor variables
+democracy_score_model_norm <- lm(total ~ 
+                                  `GDP growth (annual %)` + 
+                                  `GDP per capita (constant 2015 US$)`  +
+                                  `Research and development expenditure (% of GDP)` +
+                                  `Tax revenue (% of GDP)` +
+                                  `Total natural resources rents (% of GDP)`,
+                                data = modelling_data_wide_norm)
+
+tidy(democracy_score_model_norm) 
+glance(democracy_score_model_norm)
+
+# Fit the linear regression model with normalized GDP constant
+democracy_score_model_gdp <- lm(total ~ `GDP per capita (constant 2015 US$)`,
+                                 data = modelling_data_wide_norm)
+
+tidy(democracy_score_model_gdp) 
+glance(democracy_score_model_gdp)
+
+# Fit the linear regression model with normalized Tax Revenue constant
+democracy_score_model_tax_revenue <- lm(total ~ `Tax revenue (% of GDP)`,
+                                 data = modelling_data_wide_norm)
+
+tidy(democracy_score_model_tax_revenue) 
+glance(democracy_score_model_tax_revenue)
 ```
 
+# Exploring the data
+
+... Consider facet wrapping over the variable and make 6 plots in 1
+
+## Histogram of Democracy Score distribution
+
+```{r}
+ggplot(modelling_data_wide, aes(x = total)) + # map the democracy score variable
+  geom_histogram(fill = "steelblue") +  # create histogram with fill color
+  geom_vline(aes(xintercept = mean(total)), linetype = 2) + #creating dashed line at x=0
+  theme_minimal() + 
+  ylab("Percent-points") + 
+  xlab("Democracy Score")
+```
+
+## GDP growth
+
+### Histogram
+```{r}
+ggplot(modelling_data_wide, aes(x = `GDP growth (annual %)`)) + 
+  geom_histogram(fill = "steelblue") +  
+  geom_vline(aes(xintercept = mean(`GDP growth (annual %)`)), linetype = 2) + 
+  theme_minimal() + 
+  ylab("Number of countries")
+```
+### Scatterplot
+
+```{r}
+ggplot(modelling_data_wide_norm, aes(x = `GDP growth (annual %)`, y = total)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "GDP growth (annual %)", y = "Total") +
+  ggtitle("Democracy Score vs. GDP growth") +
+  theme_minimal()
+```
+
+## GDP pr capita
+### Histogram
+```{r}
+ggplot(modelling_data_wide, aes(x = `GDP per capita (constant 2015 US$)`)) + 
+  geom_histogram(fill = "steelblue") +  
+  geom_vline(aes(xintercept = mean(`GDP per capita (constant 2015 US$)`)), linetype = 2) + 
+  theme_minimal() + 
+  ylab("Number of countries")
+```
+### Scatterplot
+
+```{r}
+ggplot(modelling_data_wide_norm, aes(x = `GDP per capita (constant 2015 US$)`, y = total)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "GDP per capita (constant 2015 US$)", y = "Total") +
+  ggtitle("Democracy Score vs. GDP per capita") +
+  theme_minimal()
+```
+
+## R&D expenditure
+
+### Histogram
+```{r}
+ggplot(modelling_data_wide, aes(x = `Research and development expenditure (% of GDP)`)) + 
+  geom_histogram(fill = "steelblue") +  
+  geom_vline(aes(xintercept = mean(`Research and development expenditure (% of GDP)`)), linetype = 2) + 
+  theme_minimal() + 
+  ylab("Number of countries")
+```
+
+### Scatterplot
+
+```{r}
+ggplot(modelling_data_wide_norm, aes(x = `Research and development expenditure (% of GDP)`, y = total)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "Research and development expenditure (% of GDP)", y = "Total") +
+  ggtitle("Democracy Score vs. R&D expenditure") +
+  theme_minimal()
+```
+
+## Tax Revenue
+
+### Histogram
+```{r}
+ggplot(modelling_data_wide, aes(x = `Tax revenue (% of GDP)`)) + 
+  geom_histogram(fill = "steelblue") +  
+  geom_vline(aes(xintercept = mean(`Tax revenue (% of GDP)`)), linetype = 2) + 
+  theme_minimal() + 
+  ylab("Number of countries")
+```
+### Scatterplot
+
+```{r}
+ggplot(modelling_data_wide_norm, aes(x = `Tax revenue (% of GDP)`, y = total)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "Tax revenue (% of GDP)", y = "Total") +
+  ggtitle("Democracy Score vs. Tax revenue") +
+  theme_minimal()
+```
+
+
+## Natural resources
+
+### Histogram 
+```{r}
+ggplot(modelling_data_wide, aes(x = `Total natural resources rents (% of GDP)`)) + 
+  geom_histogram(fill = "steelblue") +  
+  geom_vline(aes(xintercept = mean(`Total natural resources rents (% of GDP)`)), linetype = 2) + 
+  theme_minimal() + 
+  ylab("Number of countries")
+```
+### Scatterplot
+```{r}
+ggplot(modelling_data_wide_norm, aes(x = `Total natural resources rents (% of GDP)`, y = total)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "Total natural resources rents (% of GDP)", y = "Total") +
+  ggtitle("Democracy Score vs. Natural resources rents") +
+  theme_minimal()
+```
+
+# Check assumptions
+Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
