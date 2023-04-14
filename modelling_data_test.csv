@@ -1,0 +1,216 @@
+,country_x,economic_variable,series_code,value,country_y,region,c_t,year,pr,cl,total,matching_score
+0,Australia,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+1,Australia,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,58870.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+2,Australia,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+3,Australia,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,23.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+4,Australia,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,5.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+5,Austria,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+6,Austria,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,46647.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+7,Austria,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+8,Austria,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,25.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+9,Austria,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+10,Belgium,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+11,Belgium,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,43098.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+12,Belgium,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+13,Belgium,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,22.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+14,Belgium,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+15,Bulgaria,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,4.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+16,Bulgaria,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,8234.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+17,Bulgaria,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+18,Bulgaria,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,20.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+19,Bulgaria,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+20,Canada,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+21,Canada,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,45109.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+22,Canada,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+23,Canada,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,12.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+24,Canada,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+25,Chile,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+26,Chile,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,13765.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+27,Chile,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+28,Chile,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,17.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+29,Chile,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,4.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+30,Colombia,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+31,Colombia,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,6403.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+32,Colombia,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+33,Colombia,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,15.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+34,Colombia,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,4.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+35,Costa Rica,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Costa Rica,Americas,c,2019,38,53,91,1.0
+36,Costa Rica,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,12662.0,Costa Rica,Americas,c,2019,38,53,91,1.0
+37,Costa Rica,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,,Costa Rica,Americas,c,2019,38,53,91,1.0
+38,Costa Rica,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,13.0,Costa Rica,Americas,c,2019,38,53,91,1.0
+39,Costa Rica,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Costa Rica,Americas,c,2019,38,53,91,1.0
+40,Croatia,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+41,Croatia,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,14071.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+42,Croatia,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+43,Croatia,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,21.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+44,Croatia,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+45,Cyprus,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,5.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+46,Cyprus,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,28359.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+47,Cyprus,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+48,Cyprus,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,23.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+49,Cyprus,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+50,Czechia,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+51,Czechia,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,20206.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+52,Czechia,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+53,Czechia,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,14.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+54,Czechia,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+55,Denmark,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+56,Denmark,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,57203.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+57,Denmark,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+58,Denmark,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,34.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+59,Denmark,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+60,Estonia,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+61,Estonia,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,20269.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+62,Estonia,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+63,Estonia,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,21.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+64,Estonia,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+65,Finland,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+66,Finland,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,46135.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+67,Finland,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+68,Finland,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,20.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+69,Finland,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+70,France,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+71,France,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,38832.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+72,France,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+73,France,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,24.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+74,France,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+75,Germany,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+76,Germany,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,43284.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+77,Germany,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+78,Germany,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,11.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+79,Germany,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+80,Greece,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+81,Greece,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,19018.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+82,Greece,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+83,Greece,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,26.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+84,Greece,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+85,Hungary,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,4.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+86,Hungary,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,15082.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+87,Hungary,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+88,Hungary,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,22.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+89,Hungary,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+90,Iceland,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+91,Iceland,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,57806.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+92,Iceland,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+93,Iceland,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,21.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+94,Iceland,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+95,Ireland,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,5.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+96,Ireland,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,75239.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+97,Ireland,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+98,Ireland,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,17.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+99,Ireland,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+100,Israel,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,4.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+101,Israel,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,39591.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+102,Israel,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,5.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+103,Israel,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,22.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+104,Israel,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+105,Italy,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+106,Italy,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,32114.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+107,Italy,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+108,Italy,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,24.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+109,Italy,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+110,Japan,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+111,Japan,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,36081.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+112,Japan,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+113,Japan,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+114,Japan,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+115,"Korea, Rep.",GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+116,"Korea, Rep.",GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,31640.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+117,"Korea, Rep.",Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,4.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+118,"Korea, Rep.",Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,15.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+119,"Korea, Rep.",Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+120,Latvia,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+121,Latvia,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,16069.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+122,Latvia,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+123,Latvia,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,21.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+124,Latvia,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+125,Lithuania,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,4.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+126,Lithuania,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,17249.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+127,Lithuania,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+128,Lithuania,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,19.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+129,Lithuania,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+130,Luxembourg,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+131,Luxembourg,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,106729.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+132,Luxembourg,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+133,Luxembourg,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,26.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+134,Luxembourg,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+135,Malta,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,5.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+136,Malta,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,28375.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+137,Malta,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+138,Malta,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,24.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+139,Malta,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+140,Mexico,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+141,Mexico,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,10013.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+142,Mexico,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+143,Mexico,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,13.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+144,Mexico,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+145,Netherlands,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+146,Netherlands,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,48443.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+147,Netherlands,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+148,Netherlands,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,24.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+149,Netherlands,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+150,New Zealand,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,New Zealand,Asia,c,2019,40,58,98,1.0
+151,New Zealand,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,40599.0,New Zealand,Asia,c,2019,40,58,98,1.0
+152,New Zealand,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,New Zealand,Asia,c,2019,40,58,98,1.0
+153,New Zealand,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,28.0,New Zealand,Asia,c,2019,40,58,98,1.0
+154,New Zealand,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,1.0,New Zealand,Asia,c,2019,40,58,98,1.0
+155,Norway,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+156,Norway,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,76005.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+157,Norway,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+158,Norway,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,23.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+159,Norway,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,6.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+160,Poland,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,4.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+161,Poland,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,15053.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+162,Poland,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+163,Poland,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,17.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+164,Poland,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+165,Portugal,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+166,Portugal,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,21617.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+167,Portugal,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+168,Portugal,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,22.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+169,Portugal,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+170,Romania,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+171,Romania,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,11252.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+172,Romania,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+173,Romania,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,14.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+174,Romania,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+175,Slovak Republic,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+176,Slovak Republic,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,18242.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+177,Slovak Republic,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+178,Slovak Republic,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,18.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+179,Slovak Republic,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,0.5
+180,Slovenia,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+181,Slovenia,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,24125.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+182,Slovenia,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,2.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+183,Slovenia,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,18.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+184,Slovenia,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+185,Spain,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+186,Spain,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,28087.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+187,Spain,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+188,Spain,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,13.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+189,Spain,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+190,Sweden,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+191,Sweden,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,53490.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+192,Sweden,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+193,Sweden,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,27.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+194,Sweden,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+195,Switzerland,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+196,Switzerland,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,87123.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+197,Switzerland,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,3.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+198,Switzerland,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,9.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+199,Switzerland,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+200,Turkiye,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+201,Turkiye,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,11935.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+202,Turkiye,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+203,Turkiye,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,16.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+204,Turkiye,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,Abkhazia,Eurasia,t,2019,18,23,41,1.0
+205,United Kingdom,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,1.0,United Kingdom,Europe,c,2019,39,54,93,1.0
+206,United Kingdom,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,47491.0,United Kingdom,Europe,c,2019,39,54,93,1.0
+207,United Kingdom,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,1.0,United Kingdom,Europe,c,2019,39,54,93,1.0
+208,United Kingdom,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,25.0,United Kingdom,Europe,c,2019,39,54,93,1.0
+209,United Kingdom,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,United Kingdom,Europe,c,2019,39,54,93,1.0
+210,United States,GDP growth (annual %),NY.GDP.MKTP.KD.ZG,2.0,United States,Americas,c,2019,33,53,86,1.0
+211,United States,GDP per capita (constant 2015 US$),NY.GDP.PCAP.KD,60698.0,United States,Americas,c,2019,33,53,86,1.0
+212,United States,Research and development expenditure (% of GDP),GB.XPD.RSDV.GD.ZS,3.0,United States,Americas,c,2019,33,53,86,1.0
+213,United States,Tax revenue (% of GDP),GC.TAX.TOTL.GD.ZS,10.0,United States,Americas,c,2019,33,53,86,1.0
+214,United States,Total natural resources rents (% of GDP),NY.GDP.TOTL.RT.ZS,0.0,United States,Americas,c,2019,33,53,86,1.0
