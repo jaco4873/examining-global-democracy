@@ -15,7 +15,7 @@ library(readxl)
 library(janitor)
 library(tidyverse)
 library(fastDummies)
-library(fedmatch)
+library(fedmatch)#(https://cran.r-project.org/web/packages/fedmatch/vignettes/Fuzzy-matching.html)
 library(broom)
 ```
 
@@ -224,6 +224,11 @@ worlddatabank_oecd_eea_2019 <- worlddatabank_oecd_eea %>%
   select(country, economic_variable, `series_code`, '2019') %>% 
   filter(economic_variable != "Gini index") %>% 
   rename(value = year )
+
+# Convert into wide-format for later modelling and exploration of data 
+worlddatabank_oecd_eea_2019<- worlddatabank_oecd_eea_2019 %>%
+  pivot_wider(names_from = economic_variable, values_from = value, id_cols = "country") %>% 
+  clean_names() # clean column names
 ```
 
 ## Filter freedomhouse-data for 2019 only
@@ -232,104 +237,81 @@ freedomhouse_2019 <- freedomhouse %>%
   filter(year == 2019)
 ```
 
-## Merge our final World Data Bank dataset with the freedomhouse in Python
-### Prepare CSV Files for Python and open provided script
-```{r}
-# Write CSV files for Python
-write.csv(freedomhouse_2019, "freedomhouse_2019.csv", row.names = FALSE)
-write.csv(worlddatabank_oecd_eea_2019, "worlddatabank_oecd_eea_2019.csv", row.names = FALSE)
+## Merge our final World Data Bank dataset with the freedomhouse dataset
+Merging the dataset worlddatabank_oecd_eea_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse-data
 
-# Dirty_cat merging in Python - Open Provided Python Script
+This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. Example script provided in the repository (One would need to export the dataframes as csv files to load into python)
+
+INSERT EXPLANATION OF FUNCTION
+
+```{r}
+# Add unique key for each observation to both datasets for fedmatch::merge_plus (function requirement)
+
+worlddatabank_oecd_eea_2019$unique_key_1 <- 1:nrow(worlddatabank_oecd_eea_2019)
+freedomhouse_2019$unique_key_2 <- 1:nrow(freedomhouse_2019)
+
+# Merge datasets using merge_plus and the Weighted Jaccard algorithm -
+  # NB: Order of dataset matters
+fuzzy_result <- merge_plus(data1 = worlddatabank_oecd_eea_2019, 
+                          data2 = freedomhouse_2019,
+                          by.x = "country",
+                          by.y = "country", match_type = "fuzzy", 
+                          fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .5),
+                          unique_key_1 = "unique_key_1",
+                          unique_key_2 = "unique_key_2") 
+
+# Check if any rows did not get a match
+print(fuzzy_result$data1_nomatch)
+
+```
+All 43 rows was matched. To make sure that the matching has been done correctly, we inspect those rows that did not have an exact match and verify the match:
+
+```{r}
+# Inspect non-exact matches
+fuzzy_result$matches %>%
+  filter(country_1 != country_2) %>%
+  select(country_1, country_2)
 ```
 
-Merging the dataset worlddatabank_oecd_eea_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries.
-
-The dirty_cat package merges the two different datasets over the columnn country, but does it in a smart way where it matches dynamically scoring a match between 0-1 after how well the strings match.
-
-For instance, "Turkiye" from the world data bank matches quite well with "Turkey" from freedomhouse. The score is included in the match. By sorting the "score" column, we can easily inspect those matches that are not perfect, and evaluate whether to set a threshold value of matches to include, or whether it is more optimal to manually change a few country-names in the freedomhouse dataset.
-
-### Load CSV filed written by the Python Script
+All matches but one was done correctly - Korea, Rep. was not matched correctly. A manual inspection of the freedomhouse-data set shows that this is due to different naming: "South Korea".  
+This is manually corrected:
 ```{r}
-modelling_data <- read_csv("modelling_data.csv")
-```
-By reviewing our resulting data-set and sorting by the "score" column, it becomes obvious that four countries from our oecd_eea list of countries does not have an exact or correct match in the freedomhouse_2019 data set. 
-
-Since it is only four countries, we have decided to manually rename those in the freedomhouse_2019:
-
-1. "Turkiye" is named "Turkey"
-2. "Czechia" is named "Czech Republic"
-3. "Korea, Rep." is matched with "North Korea" and should be matched with "South Korea" 
-4. "Slovak Republic" is matched with "Czech Republic" and should be matched with "Slovakia"
-
-
-```{r}
-freedomhouse_2019 <- freedomhouse_2019 %>% 
-  mutate(country = case_when(
-    country == "Turkey" ~ "Turkiye",
-    country == "Czech Republic" ~ "Czechia",
-    country == "South Korea" ~ "Korea, Rep.",
-    country == "Slovakia" ~ "Slovak Republic",
-    TRUE ~ country  # keep all other countries unchanged
-  ))
+freedomhouse_2019 <- freedomhouse_2019 %>%
+  mutate(country = if_else(country == "South Korea", "Korea, Rep.", country))
 ```
 
-We should now be able to simply merge the data sets in R:
+We can then rerun the script and inspect again:
 
 ```{r}
+fuzzy_result <- merge_plus(data1 = worlddatabank_oecd_eea_2019, 
+                          data2 = freedomhouse_2019,
+                          by.x = "country",
+                          by.y = "country", match_type = "fuzzy", 
+                          fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .5),
+                          unique_key_1 = "unique_key_1",
+                          unique_key_2 = "unique_key_2") 
 
-# Join using left join to only merge for the rows which we are interested
-modelling_data <- left_join(worlddatabank_oecd_eea_2019, freedomhouse_2019, by = "country")
+# Inspect non-exact matches
+fuzzy_result$matches %>%
+  filter(country_1 != country_2) %>%
+  select(country_1, country_2)
+```
+The non-exact matches are all correct, so we save the results to a dataframe and select relevant rows
 
-# Select only relevant rows:
-colnames(modelling_data)
+```{r}
+# Save matches to data frame
+modelling_data <- as.data.frame(fuzzy_result$matches)
+
+# Select and rearrange relevant rows:
 modelling_data <- modelling_data %>% 
-  select(-c("year", "c_t", "region"))
-
-# Convert into wide-format for modelling and exploration of data
-modelling_data_wide<- modelling_data %>%
-  pivot_wider(names_from = economic_variable, values_from = value, id_cols = c("country", "pr", "cl", "total"))
-```
-
-# Creating model(s)
-```{r}
-
-
-# Select the predictor variables to be normalized
-predictor_vars <- c("GDP growth (annual %)", 
-                    "GDP per capita (constant 2015 US$)",
-                    "Research and development expenditure (% of GDP)",
-                    "Tax revenue (% of GDP)",
-                    "Total natural resources rents (% of GDP)")
-
-# Normalize the predictor variables
-modelling_data_wide_norm <- modelling_data_wide
-modelling_data_wide_norm[predictor_vars] <- scale(modelling_data_wide_norm[predictor_vars])
-
-# Fit the linear regression model with the normalized predictor variables
-democracy_score_model_norm <- lm(total ~ 
-                                  `GDP growth (annual %)` + 
-                                  `GDP per capita (constant 2015 US$)`  +
-                                  `Research and development expenditure (% of GDP)` +
-                                  `Tax revenue (% of GDP)` +
-                                  `Total natural resources rents (% of GDP)`,
-                                data = modelling_data_wide_norm)
-
-tidy(democracy_score_model_norm) 
-glance(democracy_score_model_norm)
-
-# Fit the linear regression model with normalized GDP constant
-democracy_score_model_gdp <- lm(total ~ `GDP per capita (constant 2015 US$)`,
-                                 data = modelling_data_wide_norm)
-
-tidy(democracy_score_model_gdp) 
-glance(democracy_score_model_gdp)
-
-# Fit the linear regression model with normalized Tax Revenue constant
-democracy_score_model_tax_revenue <- lm(total ~ `Tax revenue (% of GDP)`,
-                                 data = modelling_data_wide_norm)
-
-tidy(democracy_score_model_tax_revenue) 
-glance(democracy_score_model_tax_revenue)
+  select("country_1", 
+        "gdp_growth_annual_percent", 
+        "gdp_per_capita_constant_2015_us",
+        "research_and_development_expenditure_percent_of_gdp",
+        "tax_revenue_percent_of_gdp",
+        "total_natural_resources_rents_percent_of_gdp",
+        "total") %>% 
+  rename(democracy_score = total, country = country_1)
 ```
 
 # Exploring the data
@@ -339,9 +321,9 @@ glance(democracy_score_model_tax_revenue)
 ## Histogram of Democracy Score distribution
 
 ```{r}
-ggplot(modelling_data_wide, aes(x = total)) + # map the democracy score variable
+ggplot(modelling_data, aes(x = democracy_score)) + # map the democracy score variable
   geom_histogram(fill = "steelblue") +  # create histogram with fill color
-  geom_vline(aes(xintercept = mean(total)), linetype = 2) + #creating dashed line at x=0
+  geom_vline(aes(xintercept = mean(democracy_score)), linetype = 2) + #creating dashed line at x=0
   theme_minimal() + 
   ylab("Percent-points") + 
   xlab("Democracy Score")
@@ -351,16 +333,16 @@ ggplot(modelling_data_wide, aes(x = total)) + # map the democracy score variable
 
 ### Histogram
 ```{r}
-ggplot(modelling_data_wide, aes(x = `GDP growth (annual %)`)) + 
+ggplot(modelling_data, aes(x = gdp_growth_annual_percent)) + 
   geom_histogram(fill = "steelblue") +  
-  geom_vline(aes(xintercept = mean(`GDP growth (annual %)`)), linetype = 2) + 
+  geom_vline(aes(xintercept = mean(gdp_growth_annual_percent)), linetype = 2) + 
   theme_minimal() + 
   ylab("Number of countries")
 ```
 ### Scatterplot
 
 ```{r}
-ggplot(modelling_data_wide_norm, aes(x = `GDP growth (annual %)`, y = total)) +
+ggplot(modelling_data, aes(x = gdp_growth_annual_percent, y = democracy_score)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "GDP growth (annual %)", y = "Total") +
@@ -369,18 +351,19 @@ ggplot(modelling_data_wide_norm, aes(x = `GDP growth (annual %)`, y = total)) +
 ```
 
 ## GDP pr capita
+
 ### Histogram
 ```{r}
-ggplot(modelling_data_wide, aes(x = `GDP per capita (constant 2015 US$)`)) + 
+ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us)) + 
   geom_histogram(fill = "steelblue") +  
-  geom_vline(aes(xintercept = mean(`GDP per capita (constant 2015 US$)`)), linetype = 2) + 
+  geom_vline(aes(xintercept = mean(gdp_per_capita_constant_2015_us)), linetype = 2) + 
   theme_minimal() + 
   ylab("Number of countries")
 ```
 ### Scatterplot
 
 ```{r}
-ggplot(modelling_data_wide_norm, aes(x = `GDP per capita (constant 2015 US$)`, y = total)) +
+ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us, y = democracy_score)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "GDP per capita (constant 2015 US$)", y = "Total") +
@@ -392,9 +375,9 @@ ggplot(modelling_data_wide_norm, aes(x = `GDP per capita (constant 2015 US$)`, y
 
 ### Histogram
 ```{r}
-ggplot(modelling_data_wide, aes(x = `Research and development expenditure (% of GDP)`)) + 
+ggplot(modelling_data, aes(x = research_and_development_expenditure_percent_of_gdp)) + 
   geom_histogram(fill = "steelblue") +  
-  geom_vline(aes(xintercept = mean(`Research and development expenditure (% of GDP)`)), linetype = 2) + 
+  geom_vline(aes(xintercept = mean(research_and_development_expenditure_percent_of_gdp)), linetype = 2) + 
   theme_minimal() + 
   ylab("Number of countries")
 ```
@@ -402,7 +385,7 @@ ggplot(modelling_data_wide, aes(x = `Research and development expenditure (% of 
 ### Scatterplot
 
 ```{r}
-ggplot(modelling_data_wide_norm, aes(x = `Research and development expenditure (% of GDP)`, y = total)) +
+ggplot(modelling_data, aes(x = research_and_development_expenditure_percent_of_gdp, y = democracy_score)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Research and development expenditure (% of GDP)", y = "Total") +
@@ -414,16 +397,16 @@ ggplot(modelling_data_wide_norm, aes(x = `Research and development expenditure (
 
 ### Histogram
 ```{r}
-ggplot(modelling_data_wide, aes(x = `Tax revenue (% of GDP)`)) + 
+ggplot(modelling_data, aes(x = tax_revenue_percent_of_gdp)) + 
   geom_histogram(fill = "steelblue") +  
-  geom_vline(aes(xintercept = mean(`Tax revenue (% of GDP)`)), linetype = 2) + 
+  geom_vline(aes(xintercept = mean(tax_revenue_percent_of_gdp)), linetype = 2) + 
   theme_minimal() + 
   ylab("Number of countries")
 ```
 ### Scatterplot
 
 ```{r}
-ggplot(modelling_data_wide_norm, aes(x = `Tax revenue (% of GDP)`, y = total)) +
+ggplot(modelling_data, aes(x = tax_revenue_percent_of_gdp, y = democracy_score)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Tax revenue (% of GDP)", y = "Total") +
@@ -431,25 +414,90 @@ ggplot(modelling_data_wide_norm, aes(x = `Tax revenue (% of GDP)`, y = total)) +
   theme_minimal()
 ```
 
-
 ## Natural resources
 
 ### Histogram 
 ```{r}
-ggplot(modelling_data_wide, aes(x = `Total natural resources rents (% of GDP)`)) + 
+ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp)) + 
   geom_histogram(fill = "steelblue") +  
-  geom_vline(aes(xintercept = mean(`Total natural resources rents (% of GDP)`)), linetype = 2) + 
+  geom_vline(aes(xintercept = mean(total_natural_resources_rents_percent_of_gdp)), linetype = 2) +
   theme_minimal() + 
   ylab("Number of countries")
 ```
 ### Scatterplot
 ```{r}
-ggplot(modelling_data_wide_norm, aes(x = `Total natural resources rents (% of GDP)`, y = total)) +
+ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y = democracy_score)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Total natural resources rents (% of GDP)", y = "Total") +
   ggtitle("Democracy Score vs. Natural resources rents") +
   theme_minimal()
+```
+
+# Creating model(s)
+
+As the scales of measurement differs greatly between the variables, we normalize them all to be able to compare their coefficients:
+
+```{r}
+# Select the predictor variables to be normalized
+predictor_vars <- c("gdp_growth_annual_percent","gdp_per_capita_constant_2015_us",
+        "research_and_development_expenditure_percent_of_gdp",
+        "tax_revenue_percent_of_gdp",
+        "total_natural_resources_rents_percent_of_gdp")
+
+# Normalize the predictor variables and save to a new dataframe
+modelling_data_norm <- modelling_data
+modelling_data_norm[predictor_vars] <- scale(modelling_data_norm[predictor_vars])
+```
+
+Each value in the variable-columns now represent how many standard deviations the given country falls from the mean in regards to that variable.
+
+We can then fit the linear regression model
+```{r}
+# Fit the linear regression model with the normalized predictor variables
+democracy_score_model_norm <- lm(democracy_score ~ 
+                                  gdp_growth_annual_percent + 
+                                  gdp_per_capita_constant_2015_us  +
+                                  research_and_development_expenditure_percent_of_gdp +
+                                  tax_revenue_percent_of_gdp +
+                                  total_natural_resources_rents_percent_of_gdp,
+                                data = modelling_data_norm)
+
+tidy(democracy_score_model_norm) 
+glance(democracy_score_model_norm)
+```
+The model is not very good..? 
+
+We attempt to model only by GDP per Capita and Tax Revenue
+
+```{r}
+democracy_score_model_gdp_tax <- lm(democracy_score ~ gdp_per_capita_constant_2015_us + tax_revenue_percent_of_gdp,
+                                 data = modelling_data_norm)
+
+tidy(democracy_score_model_gdp_tax) 
+glance(democracy_score_model_gdp_tax)
+
+```
+
+We attempt to model only by GDP per capita:
+```{r}
+
+# Fit the linear regression model with normalized GDP constant
+democracy_score_model_gdp <- lm(democracy_score ~ gdp_per_capita_constant_2015_us,
+                                 data = modelling_data_norm)
+
+tidy(democracy_score_model_gdp) 
+glance(democracy_score_model_gdp)
+```
+
+Modelled only on tax revenue
+```{r}
+# Fit the linear regression model with normalized Tax Revenue constant
+democracy_score_model_tax_revenue <- lm(democracy_score ~ tax_revenue_percent_of_gdp,
+                                 data = modelling_data_norm)
+
+tidy(democracy_score_model_tax_revenue) 
+glance(democracy_score_model_tax_revenue)
 ```
 
 # Check assumptions
