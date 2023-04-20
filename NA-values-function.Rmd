@@ -1,0 +1,90 @@
+---
+title: "NA-Values-Function"
+author: "Jonathan"
+date: "2023-04-20"
+output: pdf_document
+---
+
+# Call packages and load data
+```{r setup}
+library(tidyverse)
+library(dplyr)
+setwd("C:/Users/jonat/OneDrive/Desktop/University/Assignments/2. Semester/Applied Cognitive Science/Repository/applied-social-science")
+
+```
+
+```{r}
+
+wdb <- read_csv("Repository/applied-social-science/data/worlddatabank_clean.csv")
+
+```
+
+```{r}
+
+missing_data_function <- function(data_file) {
+
+  col_names <- colnames(data_file)
+
+  years <- col_names[3:length(col_names)]
+
+  economic_variables <- unique(na.omit(data_file[,2]))
+
+  missing_data <- data.frame(economic_variable = economic_variables)
+
+  for (ev in missing_data$economic_variable) {
+    for (year in years) {
+  
+      n_na <- data_file %>%
+        filter(economic_variable == ev) %>% 
+        select(year) %>% 
+        summarize(num_na = sum(is.na(.)))
+      
+      n_total <- data_file %>%
+        filter(economic_variable == ev) %>% 
+        select(year) %>% 
+        nrow()
+
+      md <- as.numeric(n_na/n_total)
+
+      missing_data[missing_data$economic_variable == ev, year] <- md
+    }
+  }
+
+  row_means <- rowMeans(missing_data[1:nrow(missing_data),2:ncol(missing_data)], na.rm = TRUE)
+  col_means <- colMeans(missing_data[1:nrow(missing_data),2:ncol(missing_data)], na.rm = TRUE)
+
+  missing_data <- rbind(missing_data, c("mean percentage", col_means))
+  missing_data$mean_row <- c(row_means, NA)
+  
+  df_col_means <- data.frame(years, col_means)
+
+  col_means_plot <- ggplot(df_col_means, aes(x = years, y = col_means)) +
+                    geom_bar(stat = "identity") +
+                    labs(x = "Year", y = "Missing Data", title = "Missing Data per year")
+  
+
+  df_row_means <- data.frame(economic_variable, row_means)
+
+  row_means_plot <- ggplot(df_row_means, aes(x = economic_variable, y = row_means)) +
+                    geom_bar(stat = "identity") +
+                    labs(x = "Economic Variable", y = "Missing Data", title = "Missing data per variable")
+
+
+
+  
+
+list(missing_data, col_means_plot, row_means_plot)
+}
+
+
+```
+
+```{r}
+
+missing_data_function(wdb)
+
+
+```
+
+
+
