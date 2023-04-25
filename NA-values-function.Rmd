@@ -14,8 +14,21 @@ setwd("C:/Users/jonat/OneDrive/Desktop/University/Assignments/2. Semester/Applie
 ```
 
 ```{r}
+# Loading the datafile 
+wdb <- read_csv("Repository/applied-social-science/data/worlddatabank.csv")
 
-wdb <- read_csv("Repository/applied-social-science/data/worlddatabank_clean.csv")
+# The datafile has to be in a specific format in order to work with the function. The format goes like this: The first column is supposed to be the country, the second column is the different variable for each country, and the following columns are supposed to be measurements per year. The code beneath this is an example on how this can be achieved.
+
+# First we extract the column with the contry name, and the series name, which in this case is our variable
+wdb2 <- wdb[, c("Country Name", "Series Name")]
+
+# We then circumnavigate some unused columns by indexinf from the 5ft column, which is where our measuremnts per year starts, and bind this to our previusly created dataframe
+wdb2 <- cbind(wdb2, wdb[, 5:ncol(wdb)])
+
+# We now have to make sure, that the columns have the correct names. This is the "manual" part of this process
+wdb2 <- setNames(wdb2, c("Country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019"))
+
+# Now the data file should be ready for an N/A assessment
 
 ```
 
@@ -23,51 +36,54 @@ wdb <- read_csv("Repository/applied-social-science/data/worlddatabank_clean.csv"
 
 missing_data_function <- function(data_file) {
 
+  data_file[, 3:ncol(data_file)] <- lapply(data_file[, 3:ncol(data_file)], as.numeric)
+  
   col_names <- colnames(data_file)
 
   years <- col_names[3:length(col_names)]
 
-  economic_variables <- unique(na.omit(data_file[,2]))
+  variables <- unique(na.omit(data_file[,2]))
 
-  missing_data <- data.frame(economic_variable = economic_variables)
+  missing_data <- data.frame(variable = variables)
 
-  for (ev in missing_data$economic_variable) {
+  for (v in missing_data$variable) {
     for (year in years) {
   
       n_na <- data_file %>%
-        filter(economic_variable == ev) %>% 
+        filter(variable == v) %>% 
         select(year) %>% 
         summarize(num_na = sum(is.na(.)))
       
       n_total <- data_file %>%
-        filter(economic_variable == ev) %>% 
+        filter(variable == v) %>% 
         select(year) %>% 
         nrow()
 
       md <- as.numeric(n_na/n_total)
 
-      missing_data[missing_data$economic_variable == ev, year] <- md
+      missing_data[missing_data$variable == v, year] <- md
     }
   }
 
   row_means <- rowMeans(missing_data[1:nrow(missing_data),2:ncol(missing_data)], na.rm = TRUE)
   col_means <- colMeans(missing_data[1:nrow(missing_data),2:ncol(missing_data)], na.rm = TRUE)
 
-  missing_data <- rbind(missing_data, c("mean percentage", col_means))
+  missing_data <- rbind(missing_data, c("mean col", col_means))
   missing_data$mean_row <- c(row_means, NA)
   
   df_col_means <- data.frame(years, col_means)
 
-  col_means_plot <- ggplot(df_col_means, aes(x = years, y = col_means)) +
+  col_means_plot <- ggplot(df_col_means, aes(x = years, y = col_means, fill = years)) +
                     geom_bar(stat = "identity") +
                     labs(x = "Year", y = "Missing Data", title = "Missing Data per year")
   
 
-  df_row_means <- data.frame(economic_variable, row_means)
+  df_row_means <- data.frame(variables, row_means)
 
-  row_means_plot <- ggplot(df_row_means, aes(x = economic_variable, y = row_means)) +
+  row_means_plot <- ggplot(df_row_means, aes(x = variables, y = row_means, fill = variables)) +
                     geom_bar(stat = "identity") +
-                    labs(x = "Economic Variable", y = "Missing Data", title = "Missing data per variable")
+                    labs(x = "Variable", y = "Missing Data", title = "Missing data per variable") +
+                    theme(axis.text.x = element_text(angle = 90, size = 8, hjust = 1))
 
 
 
@@ -76,15 +92,18 @@ missing_data_function <- function(data_file) {
 list(missing_data, col_means_plot, row_means_plot)
 }
 
+```
+
+```{r warning=FALSE}
+
+missing_data_function(wdb2)
 
 ```
 
-```{r}
-
-missing_data_function(wdb)
 
 
-```
+
+
 
 
 
