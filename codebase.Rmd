@@ -40,8 +40,8 @@ democracy_matrix <- democracy_matrix %>%
 worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE) %>%  
   rename_at(vars(5:11), ~ substr(., 1, 4)) %>%   # rename "year"-columns
   mutate_at(vars(5:11), as.numeric) %>%          # convert observations to integers
-  select(-c("Country Code")) %>%                 # exclude irrelevant column(s)
-  rename("country" = "Country Name", economic_variable = "Series Name", series_code = "Series Code")
+  select(-c("Country Code", "Series Code")) %>%                 # exclude irrelevant column(s)
+  rename("country" = "Country Name", economic_variable = "Series Name")
 ```
 
 # Compare democracy-indexes
@@ -68,61 +68,20 @@ cor(index_comparison$total, index_comparison$total_value_index)
 We can see that the freedomhouse democracy index has a very high correlation with the democracy matrix. 
 
 
-# Create country-subsets of data ###
-
-## EEA Subset (excluding Liechtenstein due to missing data)
-```{r}
-# Check that the country-names in the below string are exactly as in the world data bank
-eea <- c("Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", 
-                    "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", 
-                    "Iceland", "Ireland", "Italy", "Latvia", "Lithuania", 
-                    "Luxembourg", "Malta", "Netherlands", "Norway", "Poland", "Portugal", 
-                    "Romania", "Slovak Republic", "Slovenia", "Spain", "Sweden", "Switzerland")
-
-# Check number of countries in string
-length(eea)
-
-# Filter relevant rows. The number of rows should equal length(eea)*number of variables
-worlddatabank_eea <- worlddatabank %>% 
-  filter(country %in% eea)
-```
-
-## EEA + OECD Subset
-```{r}
-# List OECD countries 
-oecd <- c("Australia", "Austria", "Belgium", "Canada", "Chile", "Colombia",
-              "Czechia", "Denmark", "Estonia", "Finland", "France", "Germany",
-              "Greece", "Hungary", "Iceland", "Ireland", "Israel", "Italy", "Japan",
-              "Korea, Rep.", "Latvia", "Lithuania", "Luxembourg", "Mexico", "Netherlands",
-              "New Zealand", "Norway", "Poland", "Portugal", "Slovak Republic", "Slovenia",
-              "Spain", "Sweden", "Switzerland", "Turkiye", "United Kingdom", "United States",
-              "Costa Rica")
-
-#Create unique string of oecd+eea countries
-oecd_eea <- unique(c(oecd, eea))
-
-# Check number of countries in string
-length(oecd_eea)
-  
-# Filter relevant rows. The number of rows should equal length(oecd_eea)*number of variables
-worlddatabank_oecd_eea  <- worlddatabank %>% 
-  filter(country %in% oecd_eea)
-```
-
 # Missing data calculations for each subset
+INSERT FUNCTION
 
 ```{r}
 # Extract variable names
 economic_variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
 ```
 
-## All countries
 ```{r}
 # Initiate missing-data dataframe 
-missing_data_allcountries <- tibble(economic_variable)
+missing_data <- tibble(economic_variable)
 
 
-for (unique_variable in missing_data_allcountries$economic_variable) {
+for (unique_variable in missing_data$economic_variable) {
   
   for (year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019")) {
   
@@ -137,106 +96,32 @@ for (unique_variable in missing_data_allcountries$economic_variable) {
 
   missing_percentage <- as.numeric(na/total)
 
-  missing_data_allcountries[[year]][missing_data_allcountries$economic_variable == unique_variable] <- missing_percentage
+  missing_data[[year]][missing_data$economic_variable == unique_variable] <- missing_percentage
   }
   
 }
 
-missing_data_allcountries <- rbind(missing_data_allcountries, c("Mean Missing Percentage", colMeans(missing_data_allcountries[1:5,2:8])))
+missing_data <- rbind(missing_data, c("Mean Missing Percentage", colMeans(missing_data[1:5,2:8])))
 
-missing_data_allcountries
-```
-
-## EEA
-```{r}
-# Initiate missing-data dataframe 
-missing_data_eea <- tibble(economic_variable)
-
-
-for (unique_variable in missing_data_eea$economic_variable) {
-  
-  for (year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019")) {
-  
-  na <- worlddatabank_eea %>%
-            filter(economic_variable == unique_variable) %>% 
-            select(year) %>% 
-            summarize(num_na = sum(is.na(.)))
-  total <- worlddatabank_eea %>%
-            filter(economic_variable == unique_variable) %>% 
-            select(year) %>% 
-            nrow()
-
-  missing_percentage <- as.numeric(na/total)
-
-  missing_data_eea[[year]][missing_data_eea$economic_variable == unique_variable] <- missing_percentage
-  }
-  
-}
-
-missing_data_eea <- rbind(missing_data_eea, c("Mean Missing Percentage", colMeans(missing_data_eea[1:5,2:8])))
-
-missing_data_eea
-```
-
-## EEA + OECD
-```{r}
-# Initiate missing-data dataframe 
-missing_data_oecd_eea <- tibble(economic_variable)
-
-
-for (unique_variable in missing_data_oecd_eea$economic_variable) {
-  
-  for (year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019")) {
-  
-  na <- worlddatabank_oecd_eea %>%
-            filter(economic_variable == unique_variable) %>% 
-            select(year) %>% 
-            summarize(num_na = sum(is.na(.)))
-  total <- worlddatabank_oecd_eea %>%
-            filter(economic_variable == unique_variable) %>% 
-            select(year) %>% 
-            nrow()
-
-  missing_percentage <- as.numeric(na/total)
-
-  missing_data_oecd_eea[[year]][missing_data_oecd_eea$economic_variable == unique_variable] <- missing_percentage
-  }
-  
-}
-
-missing_data_oecd_eea <- rbind(missing_data_oecd_eea, c("Mean Missing Percentage", colMeans(missing_data_oecd_eea[1:5,2:8])))
-
-missing_data_oecd_eea
+missing_data
 ```
 
 # Modelling
-Based on the missing data for the macroeconomic variables, we have decided to model based on OECD + EEA countries for 2019 and excluding the Gini-coefficient-variable. 
+Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
 
 For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
 
-Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. GIven the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
+Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
 
-Furthermore, as we have settled on a broader set of countries than solely EEA and through our research have discovered that the Gini-coefficient are not necessarily reported using the same standards of calculations, we exclude this variable in our model.
+As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
 
-## Filter final dataset to only include 2019 data excluding the Gini-variable
-```{r}
-worlddatabank_oecd_eea_2019 <- worlddatabank_oecd_eea %>%
-  select(country, economic_variable, `series_code`, '2019') %>% 
-  filter(economic_variable != "Gini index") %>% 
-  rename(value = year )
-
-# Convert into wide-format for later modelling and exploration of data 
-worlddatabank_oecd_eea_2019<- worlddatabank_oecd_eea_2019 %>%
-  pivot_wider(names_from = economic_variable, values_from = value, id_cols = "country") %>% 
-  clean_names() # clean column names
-```
-
-## Filter freedomhouse-data for 2019 only
+### Filter freedomhouse-data for 2019 only
 ```{r}
 freedomhouse_2019 <- freedomhouse %>%
   filter(year == 2019)
 ```
 
+<<<<<<< Updated upstream
 ## Check for multicollinearity between variables
 Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
 
@@ -299,24 +184,48 @@ As all of our variables have a VIF score of just above 1, it means that no furth
 
 ## Merge our final World Data Bank dataset with the freedomhouse dataset
 Merging the dataset worlddatabank_oecd_eea_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse-data
+=======
+### Merge our final World Data Bank dataset with the freedomhouse dataset
+Merging the dataset worlddatabank_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse-data
+>>>>>>> Stashed changes
 
-This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. Example script provided in the repository (One would need to export the dataframes as csv files to load into python)
+This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. 
+
+## Filter final dataset to only include 2019 data for all countries excluding the Gini-variable and R&D
+```{r}
+worlddatabank_2019 <- worlddatabank %>%
+  select(country, economic_variable, '2019') %>% 
+  filter(economic_variable != "Gini index", economic_variable != "Research and development expenditure (% of GDP)") %>% 
+  rename(value = year )
+
+# Convert into wide-format for later modelling and exploration of data 
+worlddatabank_2019 <-  worlddatabank_2019 %>%
+  pivot_wider(names_from = economic_variable, values_from = value, id_cols = "country") %>% 
+  clean_names() %>%  # clean column names 
+  slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (the rows following are groupings of countries)
+  
+```
+
+### Merge our final World Data Bank dataset with the freedomhouse dataset
+We still have the dataset freedomhouse_2019 which we can merge with our data for all countries
+
+Merging as in the previous example using fedmatch::merge_plus
 
 INSERT EXPLANATION OF FUNCTION
 
 ```{r}
 # Add unique key for each observation to both datasets for fedmatch::merge_plus (function requirement)
-
-worlddatabank_oecd_eea_2019$unique_key_1 <- 1:nrow(worlddatabank_oecd_eea_2019)
+worlddatabank_2019$unique_key_1 <- 1:nrow(worlddatabank_2019)
 freedomhouse_2019$unique_key_2 <- 1:nrow(freedomhouse_2019)
+# we already have a unique_key_2 column in the freedomhouse dataset
 
 # Merge datasets using merge_plus and the Weighted Jaccard algorithm -
   # NB: Order of dataset matters
-fuzzy_result <- merge_plus(data1 = worlddatabank_oecd_eea_2019, 
+fuzzy_result <- merge_plus(data1 = worlddatabank_2019, 
                           data2 = freedomhouse_2019,
                           by.x = "country",
                           by.y = "country", match_type = "fuzzy", 
-                          fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .5),
+                          fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .2),
                           unique_key_1 = "unique_key_1",
                           unique_key_2 = "unique_key_2") 
 
@@ -324,50 +233,76 @@ fuzzy_result <- merge_plus(data1 = worlddatabank_oecd_eea_2019,
 print(fuzzy_result$data1_nomatch)
 
 ```
-All 43 rows was matched. To make sure that the matching has been done correctly, we inspect those rows that did not have an exact match and verify the match:
 
-```{r}
-# Inspect non-exact matches
-fuzzy_result$matches %>%
-  filter(country_1 != country_2) %>%
-  select(country_1, country_2)
-```
+22 rows did not have a match. These have been manually inspected, and only 6 of these are suppossed to be matched with a corresponding row in the freedomhouse data-set, namely:
 
-All matches but one was done correctly - Korea, Rep. was not matched correctly. A manual inspection of the freedomhouse-data set shows that this is due to different naming: "South Korea".  
-This is manually corrected:
+"South Korea", "Korea, Rep."
+"Samoa", "American Samoa"
+"Congo (Kinshasa)", "Congo, Dem. Rep."
+"Congo (Brazzaville)", "Congo, Rep."
+"The Gambia", "Gambia, The"
+"North Korea", "Korea, Dem. People's Rep."
+
+That is manually renamed:
+
 ```{r}
 freedomhouse_2019 <- freedomhouse_2019 %>%
-  mutate(country = if_else(country == "South Korea", "Korea, Rep.", country))
+  mutate(country = case_when(
+    country == "South Korea" ~ "Korea, Rep.",
+    country == "Samoa" ~ "American Samoa",
+    country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+    country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+    country == "The Gambia" ~ "Gambia, The",
+    country == "North Korea" ~ "Korea, Dem. People's Rep.",
+    TRUE ~ country))
 ```
 
 We can then rerun the script and inspect again:
 
 ```{r}
-fuzzy_result <- merge_plus(data1 = worlddatabank_oecd_eea_2019, 
+
+fuzzy_result<- merge_plus(data1 = worlddatabank_2019, 
                           data2 = freedomhouse_2019,
                           by.x = "country",
                           by.y = "country", match_type = "fuzzy", 
-                          fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .5),
+                          fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .2),
                           unique_key_1 = "unique_key_1",
                           unique_key_2 = "unique_key_2") 
 
+# Check the rows that did not get an exact match
+print(fuzzy_result$data1_nomatch)
+```
+We do not expect these 16 rows to be matched, as the freedomhouse dataset does not contain democracy scores for these entities.
+
+```{r}
 # Inspect non-exact matches
 fuzzy_result$matches %>%
   filter(country_1 != country_2) %>%
   select(country_1, country_2)
 ```
-The non-exact matches are all correct, so we save the results to a dataframe and select relevant rows
+
+Of the non-exact matches, a couple of them are wrongly matched:
+
+1. Greenland is matched with	Grenada
+2. Guam	is matched with Guatemala
+3. New Caledonia is matched with	New Zealand
+4. Northern Mariana Islands is matched with	Northern Cyprus
+
+There are no correct row from the democracy index to be matched with, so we exclude these rows.
 
 ```{r}
-# Save matches to data frame
-modelling_data <- as.data.frame(fuzzy_result$matches)
+# Save matches to data frame and exclude the relevant rows
+modelling_data <- as.data.frame(fuzzy_result$matches) %>% 
+  filter(!(country_1 %in% c("Greenland", "Guam", "New Caledonia", "Northern Mariana Islands")))
+```
 
+
+```{r}
 # Select and rearrange relevant rows:
 modelling_data <- modelling_data %>% 
   select("country_1", 
         "gdp_growth_annual_percent", 
         "gdp_per_capita_constant_2015_us",
-        "research_and_development_expenditure_percent_of_gdp",
         "tax_revenue_percent_of_gdp",
         "total_natural_resources_rents_percent_of_gdp",
         "total") %>% 
@@ -431,28 +366,6 @@ ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us, y = democracy_sc
   theme_minimal()
 ```
 
-## R&D expenditure
-
-### Histogram
-```{r}
-ggplot(modelling_data, aes(x = research_and_development_expenditure_percent_of_gdp)) + 
-  geom_histogram(fill = "steelblue") +  
-  geom_vline(aes(xintercept = mean(research_and_development_expenditure_percent_of_gdp)), linetype = 2) + 
-  theme_minimal() + 
-  ylab("Number of countries")
-```
-
-### Scatterplot
-
-```{r}
-ggplot(modelling_data, aes(x = research_and_development_expenditure_percent_of_gdp, y = democracy_score)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(x = "Research and development expenditure (% of GDP)", y = "Total") +
-  ggtitle("Democracy Score vs. R&D expenditure") +
-  theme_minimal()
-```
-
 ## Tax Revenue
 
 ### Histogram
@@ -501,7 +414,6 @@ As the scales of measurement differs greatly between the variables, we normalize
 ```{r}
 # Select the predictor variables to be normalized
 predictor_vars <- c("gdp_growth_annual_percent","gdp_per_capita_constant_2015_us",
-        "research_and_development_expenditure_percent_of_gdp",
         "tax_revenue_percent_of_gdp",
         "total_natural_resources_rents_percent_of_gdp")
 
@@ -518,46 +430,12 @@ We can then fit the linear regression model
 democracy_score_model_norm <- lm(democracy_score ~ 
                                   gdp_growth_annual_percent + 
                                   gdp_per_capita_constant_2015_us  +
-                                  research_and_development_expenditure_percent_of_gdp +
                                   tax_revenue_percent_of_gdp +
                                   total_natural_resources_rents_percent_of_gdp,
                                 data = modelling_data_norm)
 
 tidy(democracy_score_model_norm) 
 glance(democracy_score_model_norm)
-```
-The model is not very good..? 
-
-We attempt to model only by GDP per Capita and Tax Revenue
-
-```{r}
-democracy_score_model_gdp_tax <- lm(democracy_score ~ gdp_per_capita_constant_2015_us + tax_revenue_percent_of_gdp,
-                                 data = modelling_data_norm)
-
-tidy(democracy_score_model_gdp_tax) 
-glance(democracy_score_model_gdp_tax)
-
-```
-
-We attempt to model only by GDP per capita:
-```{r}
-
-# Fit the linear regression model with normalized GDP constant
-democracy_score_model_gdp <- lm(democracy_score ~ gdp_per_capita_constant_2015_us,
-                                 data = modelling_data_norm)
-
-tidy(democracy_score_model_gdp) 
-glance(democracy_score_model_gdp)
-```
-
-Modelled only on tax revenue
-```{r}
-# Fit the linear regression model with normalized Tax Revenue constant
-democracy_score_model_tax_revenue <- lm(democracy_score ~ tax_revenue_percent_of_gdp,
-                                 data = modelling_data_norm)
-
-tidy(democracy_score_model_tax_revenue) 
-glance(democracy_score_model_tax_revenue)
 ```
 
 # Check assumptions
