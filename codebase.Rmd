@@ -115,13 +115,6 @@ Despite having more complete data in years preceeding 2019, we do still believe 
 
 As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
 
-### Filter freedomhouse-data for 2019 only
-```{r}
-freedomhouse_2019 <- freedomhouse %>%
-  filter(year == 2019)
-```
-
-<<<<<<< Updated upstream
 ## Check for multicollinearity between variables
 Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
 
@@ -182,12 +175,14 @@ print(corr_table_vif)
 ```
 As all of our variables have a VIF score of just above 1, it means that no further investigation is warranted and all correlation coeffiecients and p-values can be trusted.
 
+## Filter freedomhouse-data for 2019 only
+```{r}
+freedomhouse_2019 <- freedomhouse %>%
+  filter(year == 2019)
+```
+
 ## Merge our final World Data Bank dataset with the freedomhouse dataset
-Merging the dataset worlddatabank_oecd_eea_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse-data
-=======
-### Merge our final World Data Bank dataset with the freedomhouse dataset
-Merging the dataset worlddatabank_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse-data
->>>>>>> Stashed changes
+Merging the dataset worlddatabank_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse-datas
 
 This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. 
 
@@ -203,10 +198,9 @@ worlddatabank_2019 <-  worlddatabank_2019 %>%
   pivot_wider(names_from = economic_variable, values_from = value, id_cols = "country") %>% 
   clean_names() %>%  # clean column names 
   slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (the rows following are groupings of countries)
-  
 ```
 
-### Merge our final World Data Bank dataset with the freedomhouse dataset
+## Merge our final World Data Bank dataset with the freedomhouse dataset
 We still have the dataset freedomhouse_2019 which we can merge with our data for all countries
 
 Merging as in the previous example using fedmatch::merge_plus
@@ -310,8 +304,6 @@ modelling_data <- modelling_data %>%
 ```
 
 # Exploring the data
-
-... Consider facet wrapping over the variable and make 6 plots in 1
 
 ## Histogram of Democracy Score distribution
 
