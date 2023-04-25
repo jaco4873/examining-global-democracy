@@ -37,11 +37,11 @@ democracy_matrix <- democracy_matrix %>%
 
 ### WORLD DATA BANK MACROECONOMIC VARIABLES ###
 # Import and clean
-worlddatabank <- read_csv("data/worlddatabank.csv", show_col_types = FALSE) %>%  
+worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE) %>%  
   rename_at(vars(5:13), ~ substr(., 1, 4)) %>%   # rename "year"-columns
   mutate_at(vars(5:13), as.numeric) %>%          # convert observations to integers
-  select(-c("Country Code", "Series Code")) %>%                 # exclude irrelevant column(s)
-  rename("country" = "Country Name", economic_variable = "Series Name")
+  select(-c("Country Code", "Series Code")) %>%  # exclude irrelevant column(s)
+  rename("country" = "Country Name", variable = "Series Name")
 ```
 
 # Compare democracy-indexes
@@ -60,6 +60,7 @@ index_comparison %>%
   geom_text() +
   geom_smooth(method = "lm", se = FALSE)
 ```
+
 ```{r}
 # Check correlation
 cor(index_comparison$total, index_comparison$total_value_index)
@@ -73,37 +74,88 @@ INSERT FUNCTION
 
 ```{r}
 # Extract variable names
-economic_variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
+variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
 ```
 
 ```{r}
-# Initiate missing-data dataframe 
-missing_data <- tibble(economic_variable)
+# The datafile has to be in a specific format in order to work with the function. The format goes like this: The first column is supposed to be the country, the second column is the different variable for each country, and the following columns are supposed to be measurements per year. The code beneath this is an example on how this can be achieved.
 
+# First we extract the column with the contry name, and the series name, which in this case is our variable
+worlddatabank2 <- worlddatabank[, c("Country Name", "Series Name")]
 
-for (unique_variable in missing_data$economic_variable) {
+# We then circumnavigate some unused columns by indexinf from the 5ft column, which is where our measuremnts per year starts, and bind this to our previusly created dataframe
+worlddatabank2 <- cbind(worlddatabank2, worlddatabank[, 5:ncol(worlddatabank)])
+
+# We now have to make sure, that the columns have the correct names. This is the "manual" part of this process
+worlddatabank2 <- setNames(worlddatabank2, c("Country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019"))
+
+# Now the data file should be ready for an N/A assessment
+
+```
+
+```{r}
+
+missing_data_function <- function(data_file) {
+
+  data_file[, 3:ncol(data_file)] <- lapply(data_file[, 3:ncol(data_file)], as.numeric)
   
-  for (year in c("2013", "2014", "2015", "2016", "2017", "2018", "2019")) {
+  col_names <- colnames(data_file)
+
+  years <- col_names[3:length(col_names)]
+
+  variables <- unique(na.omit(data_file[,2]))
+
+  missing_data <- data.frame(variable = variables)
+
+  for (v in missing_data$variable) {
+    for (year in years) {
   
-  na <- worlddatabank %>%
-            filter(economic_variable == unique_variable) %>% 
-            select(year) %>% 
-            summarize(num_na = sum(is.na(.)))
-  total <- worlddatabank %>%
-            filter(economic_variable == unique_variable) %>% 
-            select(year) %>% 
-            nrow()
+      n_na <- data_file %>%
+        filter(variable == v) %>% 
+        select(year) %>% 
+        summarize(num_na = sum(is.na(.)))
+      
+      n_total <- data_file %>%
+        filter(variable == v) %>% 
+        select(year) %>% 
+        nrow()
 
-  missing_percentage <- as.numeric(na/total)
+      md <- as.numeric(n_na/n_total)
 
-  missing_data[[year]][missing_data$economic_variable == unique_variable] <- missing_percentage
+      missing_data[missing_data$variable == v, year] <- md
+    }
   }
+
+  row_means <- rowMeans(missing_data[1:nrow(missing_data),2:ncol(missing_data)], na.rm = TRUE)
+  col_means <- colMeans(missing_data[1:nrow(missing_data),2:ncol(missing_data)], na.rm = TRUE)
+
+  missing_data <- rbind(missing_data, c("mean col", col_means))
+  missing_data$mean_row <- c(row_means, NA)
   
+  df_col_means <- data.frame(years, col_means)
+
+  col_means_plot <- ggplot(df_col_means, aes(x = years, y = col_means, fill = years)) +
+                    geom_bar(stat = "identity") +
+                    labs(x = "Year", y = "Missing Data", title = "Missing Data per year")
+  
+
+  df_row_means <- data.frame(variables, row_means)
+
+  row_means_plot <- ggplot(df_row_means, aes(x = variables, y = row_means, fill = variables)) +
+                    geom_bar(stat = "identity") +
+                    labs(x = "Variable", y = "Missing Data", title = "Missing data per variable") +
+                    theme(axis.text.x = element_text(angle = 90, size = 8, hjust = 1))
+
+
+
+  
+
+list(missing_data, col_means_plot, row_means_plot)
 }
 
-missing_data <- rbind(missing_data, c("Mean Missing Percentage", colMeans(missing_data[1:5,2:8])))
+missing_data_function(worlddatabank)
+```
 
-missing_data
 ```
 
 # Modelling
@@ -155,13 +207,13 @@ This is solved used the fedmatch package, that allows "fuzzy" merging. An altern
 ## Filter final dataset to only include 2019 data for all countries excluding the Gini-variable and R&D
 ```{r}
 worlddatabank_2019 <- worlddatabank %>%
-  select(country, economic_variable, '2019') %>% 
-  filter(economic_variable != "Gini index", economic_variable != "Research and development expenditure (% of GDP)") %>% 
+  select(country, variable, '2019') %>% 
+  filter(variable != "Gini index", variable != "Research and development expenditure (% of GDP)") %>% 
   rename(value = year )
 
 # Convert into wide-format for later modelling and exploration of data 
 worlddatabank_2019 <-  worlddatabank_2019 %>%
-  pivot_wider(names_from = economic_variable, values_from = value, id_cols = "country") %>% 
+  pivot_wider(names_from = variable, values_from = value, id_cols = "country") %>% 
   clean_names() %>%  # clean column names 
   slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (the rows following are groupings of countries)
 ```
