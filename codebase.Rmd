@@ -182,14 +182,43 @@ names(worlddatabank_2019_numeric)
 ```
 
 ```{r}
+calculate_vif <- function(data) {
+  
+  predictors <- names(data)[sapply(data, is.numeric)]
+  
+  vif_results <- data.frame(variable = character(),
+                             vif = double(),
+                             stringsAsFactors = FALSE)
+  
+  for (p in predictors) {
+    vif_value <- vif(lm(paste(p, "~ .", sep = ""), data = data))
+    vif_results <- rbind(vif_results, data.frame(variable = p,
+                                                 vif = vif_value,
+                                                 stringsAsFactors = FALSE))
+  }
+  
+  return(vif_results)
+}
+
+my_vif_results <- calculate_vif(worlddatabank_2019_numeric)
+
+my_vif_results <- unstack(my_vif_results, form=vif~variable)
+
+for (i in seq_along(names(worlddatabank_2019_numeric)[-1])) {
+  rownames(my_vif_results)[i] <- names(worlddatabank_2019_numeric)[-1][i]
+}
+
+```
+
+```{r}
 # Make a matrix of all VIF scores
-vif_matrix <- cbind(vif_values_gdp_capita, vif_values_gdp_growth, vif_values_rnd, vif_values_tax, vif_values_tnr)
+vif_matrix <- cbind(my_vif_results)
 
 corr_table_vif <- vif_matrix %>%
   as.data.frame() %>%
   round(2) %>%
   kable(format = "html", digits = 2, caption = "VIF Matrix") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"))
+  kable_styling(bootstrap_options = c("hover", full_width = F))
 
 print(corr_table_vif)
 ```
