@@ -39,9 +39,9 @@ democracy_matrix <- democracy_matrix %>%
 # Import and clean
 worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE) %>%  
   rename_at(vars(5:13), ~ substr(., 1, 4)) %>%   # rename "year"-columns
+  rename("country" = "Country Name", variable = "Series Name") %>% 
   mutate_at(vars(5:13), as.numeric) %>%          # convert observations to integers
-  select(-c("Country Code", "Series Code")) %>%  # exclude irrelevant column(s)
-  rename("country" = "Country Name", variable = "Series Name")
+  select(-c("Country Code", "Series Code"))      # exclude irrelevant column(s)
 ```
 
 # Compare democracy-indexes
@@ -80,6 +80,8 @@ variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
 ```{r}
 # The datafile has to be in a specific format in order to work with the function. The format goes like this: The first column is supposed to be the country, the second column is the different variable for each country, and the following columns are supposed to be measurements per year. The code beneath this is an example on how this can be achieved.
 
+worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE)
+
 # First we extract the column with the contry name, and the series name, which in this case is our variable
 worlddatabank2 <- worlddatabank[, c("Country Name", "Series Name")]
 
@@ -87,7 +89,7 @@ worlddatabank2 <- worlddatabank[, c("Country Name", "Series Name")]
 worlddatabank2 <- cbind(worlddatabank2, worlddatabank[, 5:ncol(worlddatabank)])
 
 # We now have to make sure, that the columns have the correct names. This is the "manual" part of this process
-worlddatabank2 <- setNames(worlddatabank2, c("Country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019"))
+worlddatabank2 <- setNames(worlddatabank2, c("Country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"))
 
 # Now the data file should be ready for an N/A assessment
 
