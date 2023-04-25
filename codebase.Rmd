@@ -452,3 +452,47 @@ glance(democracy_score_model_norm)
 
 # Check assumptions
 Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
+
+
+## Checking normality of the model using QQ-plot, Shapiro-Wilk test and Anderson-Darling test
+```{r}
+# Visualize histogram of residuals
+hist(resid(democracy_score_model_norm))
+
+# Visualize Q-Q plot of residuals
+qqnorm(resid(democracy_score_model_norm))
+qqline(resid(democracy_score_model_norm))
+
+# Perform Shapiro-Wilk test
+shapiro.test(resid(democracy_score_model_norm))
+
+# Perform Anderson-Darling test
+library(nortest)
+ad.test(resid(democracy_score_model_norm))
+```
+
+## Checking homoscedasticity using a studentized Breusch-Pagan test and plotting the residuals vs predicted values
+```{r}
+# Plot residuals against predicted values
+plot(predict(democracy_score_model_norm), resid(democracy_score_model_norm))
+
+# Perform Breusch-Pagan test
+library(lmtest)
+bptest(democracy_score_model_norm)
+```
+
+## Checking linearity using the Cook-Weisberg test, in addition to the previously completed plots of the data
+```{r}
+# Perform Cook-Weisberg test
+library(lmtest)
+ncvTest(democracy_score_model_norm)
+```
+
+## Checking for outliers using Cook's distance
+```{r}
+cooks.distance(democracy_score_model_norm)
+
+# Plot Cook's distance
+plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distance")
+abline(h = 4/length(worlddatabank_oecd_eea_numeric), col = "red")
+```
