@@ -17,6 +17,13 @@ library(tidyverse)
 library(fastDummies)
 library(fedmatch)#(https://cran.r-project.org/web/packages/fedmatch/vignettes/Fuzzy-matching.html)
 library(broom)
+library(knitr)
+library(car)
+library(corrplot)
+library(Hmisc)
+library(kableExtra)
+library(nortest)
+library(lmtest)
 ```
 
 # Load and clean data
