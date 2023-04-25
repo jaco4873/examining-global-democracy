@@ -37,9 +37,9 @@ democracy_matrix <- democracy_matrix %>%
 
 ### WORLD DATA BANK MACROECONOMIC VARIABLES ###
 # Import and clean
-worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE) %>%  
-  rename_at(vars(5:11), ~ substr(., 1, 4)) %>%   # rename "year"-columns
-  mutate_at(vars(5:11), as.numeric) %>%          # convert observations to integers
+worlddatabank <- read_csv("data/worlddatabank.csv", show_col_types = FALSE) %>%  
+  rename_at(vars(5:13), ~ substr(., 1, 4)) %>%   # rename "year"-columns
+  mutate_at(vars(5:13), as.numeric) %>%          # convert observations to integers
   select(-c("Country Code", "Series Code")) %>%                 # exclude irrelevant column(s)
   rename("country" = "Country Name", economic_variable = "Series Name")
 ```
@@ -121,44 +121,10 @@ Checking for multicollinearty between the variables is vital as it would impair 
 We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
 ```{r}
 # remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_oecd_eea_numeric <- worlddatabank_oecd_eea_2019 %>% select(-c("country"))
+worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
 
-names(worlddatabank_oecd_eea_numeric)
+names(worlddatabank_2019_numeric)
 
-```
-
-```{r}
-# calculate correlation matrix
-corr_matrix <- cor(worlddatabank_oecd_eea_numeric)
-
-# calculate VIF values for each variable
-vif_values <- vif(lm(gdp_growth_annual_percent ~ gdp_per_capita_constant_2015_us + research_and_development_expenditure_percent_of_gdp + tax_revenue_percent_of_gdp + total_natural_resources_rents_percent_of_gdp, data = worlddatabank_oecd_eea_numeric))
-
-# add VIF values to correlation matrix data frame
-corr_matrix_with_vif <- cbind(corr_matrix, VIF = vif_values)
-
-# format correlation matrix with VIF values as table
-corr_table <- corr_matrix_with_vif %>%
-  as.data.frame() %>%
-  round(2) %>%
-  kable(format = "html", digits = 2, caption = "VIF Matrix") %>%
-  kable_paper("hover", full_width = F)
-  
-# print table
-print(corr_table)
-```
-
-```{r}
-#calculate VIF  scores with each predictor as the dependent variable
-vif_values_gdp_growth <- vif(lm(gdp_growth_annual_percent ~ gdp_per_capita_constant_2015_us + research_and_development_expenditure_percent_of_gdp + tax_revenue_percent_of_gdp + total_natural_resources_rents_percent_of_gdp, data = worlddatabank_oecd_eea_numeric))
-
-vif_values_gdp_capita <- vif(lm(gdp_per_capita_constant_2015_us ~ research_and_development_expenditure_percent_of_gdp + tax_revenue_percent_of_gdp + total_natural_resources_rents_percent_of_gdp + gdp_growth_annual_percent, data = worlddatabank_oecd_eea_numeric))
-
-vif_values_rnd <- vif(lm(research_and_development_expenditure_percent_of_gdp ~ tax_revenue_percent_of_gdp + total_natural_resources_rents_percent_of_gdp + gdp_growth_annual_percent + gdp_per_capita_constant_2015_us, data = worlddatabank_oecd_eea_numeric))
-
-vif_values_tax <- vif(lm(tax_revenue_percent_of_gdp ~ total_natural_resources_rents_percent_of_gdp + gdp_growth_annual_percent + gdp_per_capita_constant_2015_us + research_and_development_expenditure_percent_of_gdp, data = worlddatabank_oecd_eea_numeric))
-
-vif_values_tnr <- vif(lm(total_natural_resources_rents_percent_of_gdp ~ gdp_growth_annual_percent + gdp_per_capita_constant_2015_us + research_and_development_expenditure_percent_of_gdp + tax_revenue_percent_of_gdp, data = worlddatabank_oecd_eea_numeric))
 ```
 
 ```{r}
