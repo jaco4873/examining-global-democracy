@@ -31,7 +31,7 @@ library(lmtest)
 worlddatabank <- read_csv(file.choose(), show_col_types = FALSE) %>%  
   rename_at(vars(5:13), ~ substr(., 1, 4)) %>%   # rename "year"-columns
   rename("country" = "Country Name", variable = "Series Name") %>% 
-  mutate_at(vars(5:13), as.numeric) %>%          # convert observations to integers
+  mutate_at(vars(5:13), as.numeric) %>%          # convert observations to decimals
   select(-c("Country Code", "Series Code"))      # exclude irrelevant column(s)
 
 # Freedom House dataset
@@ -186,12 +186,12 @@ This is solved used the fedmatch package, that allows "fuzzy" merging. An altern
 ## Subset final dataset to only include 2019 data for all countries excluding the Gini-variable and R&D
 ```{r}
 worlddatabank_2019 <- worlddatabank %>%
-  select(country, variable, '2020') %>% 
+  select(country, variable, '2019') %>% 
   filter(variable != "Gini index", variable != "Research and development expenditure (% of GDP)") 
 
 # Convert into wide-format for later modelling and exploration of data 
 worlddatabank_2019 <-  worlddatabank_2019 %>%
-  pivot_wider(names_from = variable, values_from = "2020", id_cols = "country") %>% 
+  pivot_wider(names_from = variable, values_from = "2019", id_cols = "country") %>% 
   clean_names() %>%  # clean column names 
   slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (the rows following are groupings of countries)
 ```
@@ -483,7 +483,7 @@ cooks.distance(democracy_score_model_norm)
 
 # Plot Cook's distance
 plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distance")
-abline(h = 4/length(worlddatabank_oecd_eea_numeric), col = "red")
+abline(h = 4/length(worlddatabank_numeric), col = "red")
 ```
 
 # Modelling
@@ -518,9 +518,9 @@ calculate_vif <- function(data) {
   
   for (p in predictors) {
     vif_value <- vif(lm(paste(p, "~ .", sep = ""), data = data))
-    vif_results <- rbind(vif_results, data.frame(variable = p,
-                                                 vif = vif_value,
-                                                 stringsAsFactors = FALSE))
+    vif_results <- bind_rows(vif_results, tibble(variable = p,
+                                                 vif = vif_value
+                                                 ))
   }
   
   return(vif_results)
