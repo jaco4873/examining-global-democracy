@@ -275,6 +275,3 @@ vif_values_tax <- vif(lm(tax_revenue_percent_of_gdp ~ total_natural_resources_re
 
 vif_values_tnr <- vif(lm(total_natural_resources_rents_percent_of_gdp ~ gdp_growth_annual_percent + gdp_per_capita_constant_2015_us + research_and_development_expenditure_percent_of_gdp + tax_revenue_percent_of_gdp, data = worlddatabank_oecd_eea_numeric))
 ```
-
-```
-

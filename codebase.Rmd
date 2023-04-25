@@ -20,7 +20,6 @@ library(broom)
 library(knitr)
 library(car)
 library(corrplot)
-library(Hmisc)
 library(kableExtra)
 library(nortest)
 library(lmtest)
@@ -28,27 +27,26 @@ library(lmtest)
 
 # Load and clean data
 ```{r warning=FALSE}
-### FREEDOM HOUSE ###
-# import and clean
+# World Data Bank data set
+worlddatabank <- read_csv(file.choose(), show_col_types = FALSE) %>%  
+  rename_at(vars(5:13), ~ substr(., 1, 4)) %>%   # rename "year"-columns
+  rename("country" = "Country Name", variable = "Series Name") %>% 
+  mutate_at(vars(5:13), as.numeric) %>%          # convert observations to integers
+  select(-c("Country Code", "Series Code"))      # exclude irrelevant column(s)
+
+# Freedom House dataset
 freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
 freedomhouse <- freedomhouse %>% 
   clean_names() %>%                                            # tidy data with janitor-package
   rename(country = country_territory, year = edition ) %>%     # rename columns
   select(c("country", "region", "c_t", "year", "pr", "cl", "total"))  # select relevant columns
 
-### DEMOCRACY MATRIX RANKING ###
+# Democracy Matrix Ranking
 democracy_matrix <- read_excel("democracy-matrix-ranking.xlsx", skip = 1, col_names = TRUE)
 democracy_matrix <- democracy_matrix %>% 
   clean_names() %>%                  # tidy data with janitor-package
   select(country, total_value_index) # select columns
 
-### WORLD DATA BANK MACROECONOMIC VARIABLES ###
-# Import and clean
-worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE) %>%  
-  rename_at(vars(5:13), ~ substr(., 1, 4)) %>%   # rename "year"-columns
-  rename("country" = "Country Name", variable = "Series Name") %>% 
-  mutate_at(vars(5:13), as.numeric) %>%          # convert observations to integers
-  select(-c("Country Code", "Series Code"))      # exclude irrelevant column(s)
 ```
 
 # Compare democracy-indexes
@@ -162,9 +160,7 @@ missing_data_function <- function(data_file) {
 list(missing_data, col_means_plot, row_means_plot)
 }
 
-missing_data_function(worlddatabank)
-```
-
+missing_data_function(worlddatabank2)
 ```
 
 # Modelling
@@ -175,61 +171,6 @@ For our  multiple regression model we aim to model based on data for one given y
 Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
 
 As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
-
-## Check for multicollinearity between variables
-Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
-
-We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
-```{r}
-# remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
-
-names(worlddatabank_2019_numeric)
-
-```
-
-```{r}
-calculate_vif <- function(data) {
-  
-  predictors <- names(data)[sapply(data, is.numeric)]
-  
-  vif_results <- data.frame(variable = character(),
-                             vif = double(),
-                             stringsAsFactors = FALSE)
-  
-  for (p in predictors) {
-    vif_value <- vif(lm(paste(p, "~ .", sep = ""), data = data))
-    vif_results <- rbind(vif_results, data.frame(variable = p,
-                                                 vif = vif_value,
-                                                 stringsAsFactors = FALSE))
-  }
-  
-  return(vif_results)
-}
-
-my_vif_results <- calculate_vif(worlddatabank_2019_numeric)
-
-my_vif_results <- unstack(my_vif_results, form=vif~variable)
-
-for (i in seq_along(names(worlddatabank_2019_numeric)[-1])) {
-  rownames(my_vif_results)[i] <- names(worlddatabank_2019_numeric)[-1][i]
-}
-
-```
-
-```{r}
-# Make a matrix of all VIF scores
-vif_matrix <- cbind(my_vif_results)
-
-corr_table_vif <- vif_matrix %>%
-  as.data.frame() %>%
-  round(2) %>%
-  kable(format = "html", digits = 2, caption = "VIF Matrix") %>%
-  kable_styling(bootstrap_options = c("hover", full_width = F))
-
-print(corr_table_vif)
-```
-As all of our variables have a VIF score of just above 1, it means that no further investigation is warranted and all correlation coeffiecients and p-values can be trusted.
 
 ## Filter freedomhouse-data for 2019 only
 ```{r}
@@ -242,16 +183,15 @@ Merging the dataset worlddatabank_2019 and freedomhouse_2019 creates issues, as 
 
 This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. 
 
-## Filter final dataset to only include 2019 data for all countries excluding the Gini-variable and R&D
+## Subset final dataset to only include 2019 data for all countries excluding the Gini-variable and R&D
 ```{r}
 worlddatabank_2019 <- worlddatabank %>%
-  select(country, variable, '2019') %>% 
-  filter(variable != "Gini index", variable != "Research and development expenditure (% of GDP)") %>% 
-  rename(value = year )
+  select(country, variable, '2020') %>% 
+  filter(variable != "Gini index", variable != "Research and development expenditure (% of GDP)") 
 
 # Convert into wide-format for later modelling and exploration of data 
 worlddatabank_2019 <-  worlddatabank_2019 %>%
-  pivot_wider(names_from = variable, values_from = value, id_cols = "country") %>% 
+  pivot_wider(names_from = variable, values_from = "2020", id_cols = "country") %>% 
   clean_names() %>%  # clean column names 
   slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (the rows following are groupings of countries)
 ```
@@ -455,6 +395,19 @@ ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y =
   theme_minimal()
 ```
 
+
+## Check for multicollinearity between variables
+Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+
+We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
+```{r}
+# remove non-numeric variables, that are irrelevant for collinearity analysis
+worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
+names(worlddatabank_2019_numeric)
+
+```
+
+
 # Creating model(s)
 
 As the scales of measurement differs greatly between the variables, we normalize them all to be able to compare their coefficients:
@@ -532,3 +485,66 @@ cooks.distance(democracy_score_model_norm)
 plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distance")
 abline(h = 4/length(worlddatabank_oecd_eea_numeric), col = "red")
 ```
+
+# Modelling
+Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
+
+For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
+
+Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
+
+As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
+
+## Check for multicollinearity between variables
+Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+
+We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
+```{r}
+# remove non-numeric variables, that are irrelevant for collinearity analysis
+worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
+
+names(worlddatabank_2019_numeric)
+
+```
+
+```{r}
+calculate_vif <- function(data) {
+  
+  predictors <- names(data)[sapply(data, is.numeric)]
+  
+  vif_results <- data.frame(variable = character(),
+                             vif = double(),
+                             stringsAsFactors = FALSE)
+  
+  for (p in predictors) {
+    vif_value <- vif(lm(paste(p, "~ .", sep = ""), data = data))
+    vif_results <- rbind(vif_results, data.frame(variable = p,
+                                                 vif = vif_value,
+                                                 stringsAsFactors = FALSE))
+  }
+  
+  return(vif_results)
+}
+
+my_vif_results <- calculate_vif(worlddatabank_2019_numeric)
+
+my_vif_results <- unstack(my_vif_results, form=vif~variable)
+
+for (i in seq_along(names(worlddatabank_2019_numeric)[-1])) {
+  rownames(my_vif_results)[i] <- names(worlddatabank_2019_numeric)[-1][i]
+}
+```
+
+```{r}
+# Make a matrix of all VIF scores
+vif_matrix <- cbind(my_vif_results)
+
+corr_table_vif <- vif_matrix %>%
+  as.data.frame() %>%
+  round(2) %>%
+  kable(format = "html", digits = 2, caption = "VIF Matrix") %>%
+  kable_styling(bootstrap_options = c("hover", full_width = F))
+
+print(corr_table_vif)
+```
+As all of our variables have a VIF score of just above 1, it means that no further investigation is warranted and all correlation coeffiecients and p-values can be trusted.
