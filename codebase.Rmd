@@ -23,6 +23,8 @@ library(corrplot)
 library(kableExtra)
 library(nortest)
 library(lmtest)
+library(broom.mixed)
+library(performance)
 ```
 
 # Load and clean data
@@ -35,7 +37,7 @@ worlddatabank <- read_csv(file.choose(), show_col_types = FALSE) %>%
   select(-c("Country Code", "Series Code"))      # exclude irrelevant column(s)
 
 # Freedom House dataset
-freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
+freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names  = TRUE)
 freedomhouse <- freedomhouse %>% 
   clean_names() %>%                                            # tidy data with janitor-package
   rename(country = country_territory, year = edition ) %>%     # rename columns
@@ -85,7 +87,7 @@ variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
 ```{r}
 # The datafile has to be in a specific format in order to work with the function. The format goes like this: The first column is supposed to be the country, the second column is the different variable for each country, and the following columns are supposed to be measurements per year. The code beneath this is an example on how this can be achieved.
 
-worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE)
+# worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE)
 
 # First we extract the column with the contry name, and the series name, which in this case is our variable
 worlddatabank2 <- worlddatabank[, c("Country Name", "Series Name")]
@@ -425,22 +427,30 @@ modelling_data_norm[predictor_vars] <- scale(modelling_data_norm[predictor_vars]
 
 Each value in the variable-columns now represent how many standard deviations the given country falls from the mean in regards to that variable.
 
-We can then fit the linear regression model
+We can then fit the linear regression model using stan_glm
 ```{r}
 # Fit the linear regression model with the normalized predictor variables
-democracy_score_model_norm <- lm(democracy_score ~ 
+democracy_score_model_norm <- stan_glm(democracy_score ~ 
                                   gdp_growth_annual_percent + 
                                   gdp_per_capita_constant_2015_us  +
                                   tax_revenue_percent_of_gdp +
                                   total_natural_resources_rents_percent_of_gdp,
-                                data = modelling_data_norm)
-
-tidy(democracy_score_model_norm) 
-glance(democracy_score_model_norm)
+                                data = modelling_data_norm, refresh = 0)
+# Inspect model
+print(democracy_score_model_norm)
 ```
 
 # Check assumptions
 Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
+
+```{r}
+# General check 
+check_model(democracy_score_model_norm, check = c("qq", "linearity", "homogeneity", "pp_check"))
+
+# Collinearity (VIF)
+plot(check_collinearity(democracy_score_model_norm))
+
+```
 
 
 ## Checking normality of the model using QQ-plot, Shapiro-Wilk test and Anderson-Darling test
@@ -486,19 +496,7 @@ plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distan
 abline(h = 4/length(worlddatabank_numeric), col = "red")
 ```
 
-# Modelling
-Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
-
-For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
-
-Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
-
-As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
-
-## Check for multicollinearity between variables
-Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
-
-We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
+## VIF table
 ```{r}
 # remove non-numeric variables, that are irrelevant for collinearity analysis
 worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
