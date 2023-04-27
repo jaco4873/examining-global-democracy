@@ -462,31 +462,12 @@ library(nortest)
 ad.test(resid(democracy_score_model_norm))
 ```
 
-## Checking homoscedasticity using a studentized Breusch-Pagan test and plotting the residuals vs predicted values
+## Checking homoscedasticity by plotting the residuals vs predicted values
 ```{r}
 # Plot residuals against predicted values
 plot(predict(democracy_score_model_norm), resid(democracy_score_model_norm))
-
-# Perform Breusch-Pagan test
-library(lmtest)
-bptest(democracy_score_model_norm)
 ```
 
-## Checking linearity using the Cook-Weisberg test, in addition to the previously completed plots of the data
-```{r}
-# Perform Cook-Weisberg test
-library(lmtest)
-ncvTest(democracy_score_model_norm)
-```
-
-## Checking for outliers using Cook's distance
-```{r}
-cooks.distance(democracy_score_model_norm)
-
-# Plot Cook's distance
-plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distance")
-abline(h = 4/length(worlddatabank_numeric), col = "red")
-```
 ## Check for multicollinearity between variables
 Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
 
