@@ -25,6 +25,10 @@ library(nortest)
 library(lmtest)
 library(broom.mixed)
 library(performance)
+library(rstan)
+library(rstanarm)
+library(see)
+library(patchwork)
 ```
 
 # Load and clean data
