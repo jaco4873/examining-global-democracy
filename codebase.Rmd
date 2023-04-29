@@ -425,15 +425,38 @@ democracy_score_model_norm <- stan_glm(democracy_score ~
 print(democracy_score_model_norm)
 ```
 
+# Generate predictions using the linear model for the test data and compare to true observations
+```{r}
+
+# Generate point predictions
+democracy_score_predictions <- predict(object = democracy_score_model_norm, newdata = data_test)
+
+# Check the prediction accuracy
+testing_model <- data_test %>% na.omit(data_test) %>% 
+  add_column(democracy_score_predictions) %>% 
+  mutate(error = democracy_score-democracy_score_predictions) %>% 
+  mutate(squared_error = round(error^2, digits = 3)) %>% 
+  select("country", "democracy_score", "democracy_score_predictions", "error", "squared_error")
+
+testing_model
+
+# CALCULATING RMSE of predictions made by the model based on training dataset
+sqrt(mean(testing_model$squared_error))
+
+# Histogram of errors in predictions
+hist(testing_model$error, breaks = 15)
+hist(democracy_score_predictions, breaks = 15)
+```
+
 
 # Cross validate model using stratified 10-fold cross validation
 ```{r}
 
 # Create random sample test data
-set.seed(124)
+set.seed(135)
 
 # Split data into training and test data
-data_split <- initial_split(modelling_data_norm, prop = 4/5, strata = democracy_score)
+data_split <- initial_split(modelling_data_norm, prop = 7/10, strata = democracy_score)
 data_train <- training(data_split)
 data_test <- testing(data_split)
 
@@ -456,7 +479,7 @@ linear_wf <- workflow() %>%
     add_model(linear_spec)
 
 # Create folds
-folds <- vfold_cv(data = data_train, v = 10, strata = democracy_score, breaks = 8, pool = 0.1)
+folds <- vfold_cv(data = data_train, v = 5, strata = democracy_score, breaks = 7, pool = 0.1)
 
 # Fit and evaluate model
 cv_results <- linear_wf %>%
@@ -466,33 +489,11 @@ cv_results <- linear_wf %>%
 # Print cross-validation results
 cv_results
 ```
+As the RMSE of the model trained on the whole training data lies fairly close to the cross-validated RMSE mean, it seems that our model generalizes well outside the sample.
 
-# Generate predictions using stan_glm model on data train
-```{r}
 
-# Generate point predictions
-democracy_score_predictions <- predict(object = democracy_score_model_norm, newdata = data_test)
-
-# Check the prediction accuracy
-testing_model <- data_test %>% na.omit(data_test) %>% 
-  add_column(democracy_score_predictions) %>% 
-  mutate(error = democracy_score-democracy_score_predictions) %>% 
-  mutate(squared_error = round(error^2, digits = 3)) %>% 
-  select("country", "democracy_score", "democracy_score_predictions", "error", "squared_error")
-
-testing_model
-
-# CALCULATING RMSE of predictions made by the model based on training dataset
-sqrt(mean(testing_model$squared_error))
-
-# Histogram of errors in predictions
-hist(testing_model$error, breaks = 15)
-hist(democracy_score_predictions, breaks = 15)
-```
-As the RMSE of the model trained on the whole training dati lies fairly close to the cross-validated RMSE mean, it seems that our model works well on unseen data.
-
-```{r}
 # Comparing to intercept-only model
+```{r}
 modelling_data %>% mutate(average = mean(democracy_score)) %>% 
   mutate(squared_error = ((democracy_score-average)^2)) %>% 
   mutate(MSE = mean(squared_error)) %>% 
@@ -502,7 +503,7 @@ modelling_data %>% mutate(average = mean(democracy_score)) %>%
 ```
 Our cross validated model obtains a much smaller RMSE for predictions than if we were just guessing a country's democracy score by the average of all countries.
 
-
+We can furthermore see, that tere is an improvement from roughly 30 RMSE to 20 RMSE using the model.
 
 # Check assumptions
 Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
