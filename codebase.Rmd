@@ -25,14 +25,7 @@ library(nortest)
 library(lmtest)
 library(broom.mixed)
 library(performance)
-<<<<<<< Updated upstream
-library(rstan)
 library(rstanarm)
-library(see)
-library(patchwork)
-=======
-library(rstanarm)
->>>>>>> Stashed changes
 ```
 
 # Load and clean data
@@ -98,13 +91,13 @@ variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
 # worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE)
 
 # First we extract the column with the contry name, and the series name, which in this case is our variable
-worlddatabank2 <- worlddatabank[, c("Country Name", "Series Name")]
+worlddatabank2 <- worlddatabank[, c("country", "variable")]
 
 # We then circumnavigate some unused columns by indexinf from the 5ft column, which is where our measuremnts per year starts, and bind this to our previusly created dataframe
-worlddatabank2 <- cbind(worlddatabank2, worlddatabank[, 5:ncol(worlddatabank)])
+worlddatabank2 <- cbind(worlddatabank2, worlddatabank[, 3:ncol(worlddatabank)])
 
 # We now have to make sure, that the columns have the correct names. This is the "manual" part of this process
-worlddatabank2 <- setNames(worlddatabank2, c("Country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"))
+worlddatabank2 <- setNames(worlddatabank2, c("country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"))
 
 # Now the data file should be ready for an N/A assessment
 
@@ -403,7 +396,113 @@ ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y =
 ```
 
 
-# Creating model(s)
+
+
+# Create model based on normalized predictors
+```{r}
+# Select the predictor variables to be normalized
+predictor_vars <- c("gdp_growth_annual_percent","gdp_per_capita_constant_2015_us",
+        "tax_revenue_percent_of_gdp",
+        "total_natural_resources_rents_percent_of_gdp")
+
+# Normalize the predictor variables and save to a new dataframe
+modelling_data_norm <- modelling_data
+modelling_data_norm[predictor_vars] <- scale(modelling_data_norm[predictor_vars])
+```
+
+Each value in the variable-columns now represent how many standard deviations the given country falls from the mean in regards to that variable.
+
+We can then fit the linear regression model using stan_glm
+```{r}
+# Fit the linear regression model with the normalized predictor variables
+democracy_score_model_norm <- stan_glm(democracy_score ~ 
+                                  gdp_growth_annual_percent + 
+                                  gdp_per_capita_constant_2015_us  +
+                                  tax_revenue_percent_of_gdp +
+                                  total_natural_resources_rents_percent_of_gdp,
+                                data = data_train, refresh = 0)
+# Inspect model
+print(democracy_score_model_norm)
+```
+
+
+# Cross validate model using stratified 10-fold cross validation
+```{r}
+
+# Create random sample test data
+set.seed(124)
+
+# Split data into training and test data
+data_split <- initial_split(modelling_data_norm, prop = 4/5, strata = democracy_score)
+data_train <- training(data_split)
+data_test <- testing(data_split)
+
+# Create receipe
+data_recipe <- recipe(democracy_score ~ 
+                              gdp_growth_annual_percent + 
+                              gdp_per_capita_constant_2015_us  +
+                              tax_revenue_percent_of_gdp +
+                              total_natural_resources_rents_percent_of_gdp, 
+                      data = data_train)
+
+
+# Define model
+linear_spec <- linear_reg() %>%
+    set_engine("lm")
+
+# Create workflow
+linear_wf <- workflow() %>%
+    add_recipe(data_recipe) %>%
+    add_model(linear_spec)
+
+# Create folds
+folds <- vfold_cv(data = data_train, v = 10, strata = democracy_score, breaks = 8, pool = 0.1)
+
+# Fit and evaluate model
+cv_results <- linear_wf %>%
+    fit_resamples(folds) %>%
+    collect_metrics()
+
+# Print cross-validation results
+cv_results
+```
+
+# Generate predictions using stan_glm model on data train
+```{r}
+
+# Generate point predictions
+democracy_score_predictions <- predict(object = democracy_score_model_norm, newdata = data_test)
+
+# Check the prediction accuracy
+testing_model <- data_test %>% na.omit(data_test) %>% 
+  add_column(democracy_score_predictions) %>% 
+  mutate(error = democracy_score-democracy_score_predictions) %>% 
+  mutate(squared_error = round(error^2, digits = 3)) %>% 
+  select("country", "democracy_score", "democracy_score_predictions", "error", "squared_error")
+
+testing_model
+
+# CALCULATING RMSE of predictions made by the model based on training dataset
+sqrt(mean(testing_model$squared_error))
+
+# Histogram of errors in predictions
+hist(testing_model$error, breaks = 15)
+hist(democracy_score_predictions, breaks = 15)
+```
+As the RMSE of the model trained on the whole training dati lies fairly close to the cross-validated RMSE mean, it seems that our model works well on unseen data.
+
+```{r}
+# Comparing to intercept-only model
+modelling_data %>% mutate(average = mean(democracy_score)) %>% 
+  mutate(squared_error = ((democracy_score-average)^2)) %>% 
+  mutate(MSE = mean(squared_error)) %>% 
+  mutate(RMSE = sqrt(MSE)) %>% 
+  select("country", "democracy_score", "squared_error", "RMSE")
+
+```
+Our cross validated model obtains a much smaller RMSE for predictions than if we were just guessing a country's democracy score by the average of all countries.
+
+
 
 # Check assumptions
 Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
@@ -435,21 +534,36 @@ library(nortest)
 ad.test(resid(democracy_score_model_norm))
 ```
 
-## Checking homoscedasticity by plotting the residuals vs predicted values
+## Checking homoscedasticity using a studentized Breusch-Pagan test and plotting the residuals vs predicted values
 ```{r}
 # Plot residuals against predicted values
 plot(predict(democracy_score_model_norm), resid(democracy_score_model_norm))
+
+# Perform Breusch-Pagan test
+library(lmtest)
+bptest(democracy_score_model_norm)
 ```
 
-## Check for multicollinearity between variables
-Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+## Checking linearity using the Cook-Weisberg test, in addition to the previously completed plots of the data
+```{r}
+# Perform Cook-Weisberg test
+library(lmtest)
+ncvTest(democracy_score_model_norm)
+```
 
-We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
+## Checking for outliers using Cook's distance
+```{r}
+cooks.distance(democracy_score_model_norm)
+
+# Plot Cook's distance
+plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distance")
+abline(h = 4/length(worlddatabank_numeric), col = "red")
+```
 
 ## VIF table
 ```{r}
 # remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country", "unique_key_1"))
+worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
 
 names(worlddatabank_2019_numeric)
 
@@ -500,103 +614,13 @@ As all of our variables have a VIF score of just above 1, it means that no furth
 
 As the scales of measurement differs greatly between the variables, we normalize them all to be able to compare their coefficients:
 
-# Create model based on normalized predictors
+## Check for multicollinearity between variables
+Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+
+We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
 ```{r}
-# Select the predictor variables to be normalized
-predictor_vars <- c("gdp_growth_annual_percent","gdp_per_capita_constant_2015_us",
-        "tax_revenue_percent_of_gdp",
-        "total_natural_resources_rents_percent_of_gdp")
+# remove non-numeric variables, that are irrelevant for collinearity analysis
+worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
+names(worlddatabank_2019_numeric)
 
-# Normalize the predictor variables and save to a new dataframe
-modelling_data_norm <- modelling_data
-modelling_data_norm[predictor_vars] <- scale(modelling_data_norm[predictor_vars])
 ```
-
-Each value in the variable-columns now represent how many standard deviations the given country falls from the mean in regards to that variable.
-
-We can then fit the linear regression model using stan_glm
-```{r}
-# Fit the linear regression model with the normalized predictor variables
-democracy_score_model_norm <- stan_glm(democracy_score ~ 
-                                  gdp_growth_annual_percent + 
-                                  gdp_per_capita_constant_2015_us  +
-                                  tax_revenue_percent_of_gdp +
-                                  total_natural_resources_rents_percent_of_gdp,
-                                data = data_train, refresh = 0)
-# Inspect model
-print(democracy_score_model_norm)
-```
-
-
-# Cross validate model using stratified 10-fold cross validation
-```{r}
-
-# Create random sample test data
-set.seed(123)
-
-# Split data into training and test data
-data_split <- initial_split(modelling_data_norm, prop = 4/5, strata = democracy_score)
-data_train <- training(data_split)
-data_test <- testing(data_split)
-
-# Create receipe
-data_recipe <- recipe(democracy_score ~ 
-                              gdp_growth_annual_percent + 
-                              gdp_per_capita_constant_2015_us  +
-                              tax_revenue_percent_of_gdp +
-                              total_natural_resources_rents_percent_of_gdp, 
-                      data = data_train)
-
-
-# Define model
-linear_spec <- linear_reg() %>%
-    set_engine("lm")
-
-# Create workflow
-linear_wf <- workflow() %>%
-    add_recipe(data_recipe) %>%
-    add_model(linear_spec)
-
-# Create folds
-folds <- vfold_cv(data = data_train, v = 10, strata = democracy_score, breaks = 8, pool = 0.1)
-
-# Fit and evaluate model
-cv_results <- linear_wf %>%
-    fit_resamples(folds) %>%
-    collect_metrics()
-
-# Print cross-validation results
-cv_results
-```
-
-# Generate predictions using stan_glm model on data train
-```{r}
-
-# Generate point predictions
-democracy_score_predictions <- predict(object = democracy_score_model_norm, newdata = data_test)
-
-# Check the prediction accuracy
-testing_model <- data_test %>% na.omit(data_test) %>% 
-  add_column(democracy_score_predictions) %>% 
-  mutate(error = democracy_score-democracy_score_predictions) %>% 
-  mutate(squared_error = round(error^2, digits = 3))
-testing_model
-
-# CALCULATING RMSE of predictions made by the model based on training dataset
-sqrt(mean(testing_model$squared_error))
-
-# Histogram of errors in predictions
-hist(testing_model$error, breaks = 10)
-```
-This values lies just slightly below the RMSE average from the cross validation results.
-
-
-
-```{r}
-# Comparing to intercept-only model
-modelling_data %>% mutate(average = mean(democracy_score)) %>% 
-  mutate(squared_error = ((democracy_score-average)^2)) %>% 
-  mutate(MSE = mean(squared_error)) %>% 
-  mutate(RMSE = sqrt(MSE))
-```
-Our cross validated model obtains a much smaller RMSE for predictions than if we were just guessing a country's democracy score by the average of all countries.
