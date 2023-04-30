@@ -26,6 +26,10 @@ library(lmtest)
 library(broom.mixed)
 library(performance)
 library(rstanarm)
+library(flextable)
+library(dlookr)
+library(forecast)
+library(prettydoc)
 ```
 
 # Load and clean data
@@ -77,7 +81,7 @@ cor(index_comparison$total, index_comparison$total_value_index)
 We can see that the freedomhouse democracy index has a very high correlation with the democracy matrix. 
 
 
-# Missing data calculations for each subset
+# Data diagnosis: Missing data
 INSERT FUNCTION
 
 ```{r}
@@ -166,7 +170,7 @@ list(missing_data, col_means_plot, row_means_plot)
 missing_data_function(worlddatabank2)
 ```
 
-# Modelling
+# Merging datasets for modelling
 Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
 
 For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
@@ -299,7 +303,27 @@ modelling_data <- modelling_data %>%
   rename(democracy_score = total, country = country_1)
 ```
 
-# Exploring the data
+# Diagnose Data
+
+```{r}
+# Create a diagnose statistics
+diagnose_web_report(modelling_data)
+diagnose(modelling_data)
+diagnose_numeric(modelling_data)
+diagnose_outlier(modelling_data) 
+plot_outlier(modelling_data)
+```
+# Explore data
+```{r}
+describe(modelling_data)
+normality(modelling_data)
+plot_normality(modelling_data) # consider log-transforming GDP pr capita
+
+# Check all variable correlations numerically and visually
+correlate(modelling_data) %>% flextable()
+plot_correlate(modelling_data) 
+```
+
 
 ## Histogram of Democracy Score distribution
 
@@ -308,7 +332,7 @@ ggplot(modelling_data, aes(x = democracy_score)) + # map the democracy score var
   geom_histogram(fill = "steelblue") +  # create histogram with fill color
   geom_vline(aes(xintercept = mean(democracy_score)), linetype = 2) + #creating dashed line at x=0
   theme_minimal() + 
-  ylab("Percent-points") + 
+  ylab("Count") + 
   xlab("Democracy Score")
 ```
 
@@ -330,7 +354,8 @@ ggplot(modelling_data, aes(x = gdp_growth_annual_percent, y = democracy_score)) 
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "GDP growth (annual %)", y = "Total") +
   ggtitle("Democracy Score vs. GDP growth") +
-  theme_minimal()
+  theme_minimal() +
+  xlim(-5,10)
 ```
 
 ## GDP pr capita
@@ -351,7 +376,9 @@ ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us, y = democracy_sc
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "GDP per capita (constant 2015 US$)", y = "Total") +
   ggtitle("Democracy Score vs. GDP per capita") +
-  theme_minimal()
+  theme_minimal() +
+  xlim(0, 60000)
+
 ```
 
 ## Tax Revenue
@@ -392,7 +419,8 @@ ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y =
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Total natural resources rents (% of GDP)", y = "Total") +
   ggtitle("Democracy Score vs. Natural resources rents") +
-  theme_minimal()
+  theme_minimal() +
+  xlim(0,20)
 ```
 
 
@@ -438,14 +466,18 @@ testing_model <- data_test %>% na.omit(data_test) %>%
   mutate(squared_error = round(error^2, digits = 3)) %>% 
   select("country", "democracy_score", "democracy_score_predictions", "error", "squared_error")
 
-testing_model
+print(testing_model)
 
 # CALCULATING RMSE of predictions made by the model based on training dataset
 sqrt(mean(testing_model$squared_error))
 
 # Histogram of errors in predictions
-hist(testing_model$error, breaks = 15)
-hist(democracy_score_predictions, breaks = 15)
+ggplot(testing_model, aes(x = error)) + 
+  geom_histogram(fill = "steelblue", binwidth = 15) +  
+  geom_vline(aes(xintercept = mean(error)), linetype = 2) +
+  theme_minimal() + 
+  xlab("Democracy Score Prediction Residuals") +
+  ggtitle("Model Residuals")
 ```
 
 
@@ -479,7 +511,8 @@ linear_wf <- workflow() %>%
     add_model(linear_spec)
 
 # Create folds
-folds <- vfold_cv(data = data_train, v = 5, strata = democracy_score, breaks = 7, pool = 0.1)
+folds <- vfold_cv(data = data_train, v = 5, strata = democracy_score, pool = 0.1)
+?vfold_cv
 
 # Fit and evaluate model
 cv_results <- linear_wf %>%
@@ -498,7 +531,7 @@ modelling_data %>% mutate(average = mean(democracy_score)) %>%
   mutate(squared_error = ((democracy_score-average)^2)) %>% 
   mutate(MSE = mean(squared_error)) %>% 
   mutate(RMSE = sqrt(MSE)) %>% 
-  select("country", "democracy_score", "squared_error", "RMSE")
+  select("country", "average", "democracy_score", "squared_error", "RMSE")
 
 ```
 Our cross validated model obtains a much smaller RMSE for predictions than if we were just guessing a country's democracy score by the average of all countries.
