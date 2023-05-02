@@ -23,13 +23,6 @@ library(corrplot)
 library(kableExtra)
 library(nortest)
 library(lmtest)
-library(broom.mixed)
-library(performance)
-library(rstanarm)
-library(flextable)
-library(dlookr)
-library(forecast)
-library(prettydoc)
 ```
 
 # Load and clean data
@@ -42,7 +35,7 @@ worlddatabank <- read_csv(file.choose(), show_col_types = FALSE) %>%
   select(-c("Country Code", "Series Code"))      # exclude irrelevant column(s)
 
 # Freedom House dataset
-freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names  = TRUE)
+freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
 freedomhouse <- freedomhouse %>% 
   clean_names() %>%                                            # tidy data with janitor-package
   rename(country = country_territory, year = edition ) %>%     # rename columns
@@ -81,37 +74,24 @@ cor(index_comparison$total, index_comparison$total_value_index)
 We can see that the freedomhouse democracy index has a very high correlation with the democracy matrix. 
 
 
-# Data diagnosis: Missing data
+# Missing data calculations for each subset
 INSERT FUNCTION
-
-```{r}
-# Extract variable names
-variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
-```
-
-```{r}
-# The datafile has to be in a specific format in order to work with the function. The format goes like this: The first column is supposed to be the country, the second column is the different variable for each country, and the following columns are supposed to be measurements per year. The code beneath this is an example on how this can be achieved.
-
-# worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE)
-
-# First we extract the column with the contry name, and the series name, which in this case is our variable
-worlddatabank2 <- worlddatabank[, c("country", "variable")]
-
-# We then circumnavigate some unused columns by indexinf from the 5ft column, which is where our measuremnts per year starts, and bind this to our previusly created dataframe
-worlddatabank2 <- cbind(worlddatabank2, worlddatabank[, 3:ncol(worlddatabank)])
-
-# We now have to make sure, that the columns have the correct names. This is the "manual" part of this process
-worlddatabank2 <- setNames(worlddatabank2, c("country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"))
-
-# Now the data file should be ready for an N/A assessment
-
-```
 
 ```{r}
 
 missing_data_function <- function(data_file) {
+  
+  temp <- data_file[, c("Country Name", "Series Name")]
 
-  data_file[, 3:ncol(data_file)] <- lapply(data_file[, 3:ncol(data_file)], as.numeric)
+  temp <- cbind(temp, data_file[, 5:ncol(data_file)])
+
+  temp <- rename_at(temp, vars(3:ncol(temp)), ~ substr(., 1, 4))
+
+  temp <- rename(temp, "country" = "Country Name", variable = "Series Name")
+
+  temp[, 3:ncol(temp)] <- lapply(temp[, 3:ncol(temp)], as.numeric)
+  
+  data_file <- temp
   
   col_names <- colnames(data_file)
 
@@ -161,16 +141,18 @@ missing_data_function <- function(data_file) {
                     theme(axis.text.x = element_text(angle = 90, size = 8, hjust = 1))
 
 
-
-  
-
 list(missing_data, col_means_plot, row_means_plot)
 }
 
-missing_data_function(worlddatabank2)
 ```
 
-# Merging datasets for modelling
+```{r warning=FALSE}
+
+missing_data_function(wdb)
+
+```
+
+# Modelling
 Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
 
 For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
@@ -291,7 +273,10 @@ There are no correct row from the democracy index to be matched with, so we excl
 # Save matches to data frame and exclude the relevant rows
 modelling_data <- as.data.frame(fuzzy_result$matches) %>% 
   filter(!(country_1 %in% c("Greenland", "Guam", "New Caledonia", "Northern Mariana Islands")))
+```
 
+
+```{r}
 # Select and rearrange relevant rows:
 modelling_data <- modelling_data %>% 
   select("country_1", 
@@ -303,27 +288,7 @@ modelling_data <- modelling_data %>%
   rename(democracy_score = total, country = country_1)
 ```
 
-# Diagnose Data
-
-```{r}
-# Create a diagnose statistics
-diagnose_web_report(modelling_data)
-diagnose(modelling_data)
-diagnose_numeric(modelling_data)
-diagnose_outlier(modelling_data) 
-plot_outlier(modelling_data)
-```
-# Explore data
-```{r}
-describe(modelling_data)
-normality(modelling_data)
-plot_normality(modelling_data) # consider log-transforming GDP pr capita
-
-# Check all variable correlations numerically and visually
-correlate(modelling_data) %>% flextable()
-plot_correlate(modelling_data) 
-```
-
+# Exploring the data
 
 ## Histogram of Democracy Score distribution
 
@@ -332,7 +297,7 @@ ggplot(modelling_data, aes(x = democracy_score)) + # map the democracy score var
   geom_histogram(fill = "steelblue") +  # create histogram with fill color
   geom_vline(aes(xintercept = mean(democracy_score)), linetype = 2) + #creating dashed line at x=0
   theme_minimal() + 
-  ylab("Count") + 
+  ylab("Percent-points") + 
   xlab("Democracy Score")
 ```
 
@@ -354,8 +319,7 @@ ggplot(modelling_data, aes(x = gdp_growth_annual_percent, y = democracy_score)) 
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "GDP growth (annual %)", y = "Total") +
   ggtitle("Democracy Score vs. GDP growth") +
-  theme_minimal() +
-  xlim(-5,10)
+  theme_minimal()
 ```
 
 ## GDP pr capita
@@ -376,9 +340,7 @@ ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us, y = democracy_sc
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "GDP per capita (constant 2015 US$)", y = "Total") +
   ggtitle("Democracy Score vs. GDP per capita") +
-  theme_minimal() +
-  xlim(0, 60000)
-
+  theme_minimal()
 ```
 
 ## Tax Revenue
@@ -419,14 +381,26 @@ ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y =
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Total natural resources rents (% of GDP)", y = "Total") +
   ggtitle("Democracy Score vs. Natural resources rents") +
-  theme_minimal() +
-  xlim(0,20)
+  theme_minimal()
 ```
 
 
+## Check for multicollinearity between variables
+Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+
+We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
+```{r}
+# remove non-numeric variables, that are irrelevant for collinearity analysis
+worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
+names(worlddatabank_2019_numeric)
+
+```
 
 
-# Create model based on normalized predictors
+# Creating model(s)
+
+As the scales of measurement differs greatly between the variables, we normalize them all to be able to compare their coefficients:
+
 ```{r}
 # Select the predictor variables to be normalized
 predictor_vars <- c("gdp_growth_annual_percent","gdp_per_capita_constant_2015_us",
@@ -440,115 +414,22 @@ modelling_data_norm[predictor_vars] <- scale(modelling_data_norm[predictor_vars]
 
 Each value in the variable-columns now represent how many standard deviations the given country falls from the mean in regards to that variable.
 
-We can then fit the linear regression model using stan_glm
+We can then fit the linear regression model
 ```{r}
 # Fit the linear regression model with the normalized predictor variables
-democracy_score_model_norm <- stan_glm(democracy_score ~ 
+democracy_score_model_norm <- lm(democracy_score ~ 
                                   gdp_growth_annual_percent + 
                                   gdp_per_capita_constant_2015_us  +
                                   tax_revenue_percent_of_gdp +
                                   total_natural_resources_rents_percent_of_gdp,
-                                data = data_train, refresh = 0)
-# Inspect model
-print(democracy_score_model_norm)
+                                data = modelling_data_norm)
+
+tidy(democracy_score_model_norm) 
+glance(democracy_score_model_norm)
 ```
-
-# Generate predictions using the linear model for the test data and compare to true observations
-```{r}
-
-# Generate point predictions
-democracy_score_predictions <- predict(object = democracy_score_model_norm, newdata = data_test)
-
-# Check the prediction accuracy
-testing_model <- data_test %>% na.omit(data_test) %>% 
-  add_column(democracy_score_predictions) %>% 
-  mutate(error = democracy_score-democracy_score_predictions) %>% 
-  mutate(squared_error = round(error^2, digits = 3)) %>% 
-  select("country", "democracy_score", "democracy_score_predictions", "error", "squared_error")
-
-print(testing_model)
-
-# CALCULATING RMSE of predictions made by the model based on training dataset
-sqrt(mean(testing_model$squared_error))
-
-# Histogram of errors in predictions
-ggplot(testing_model, aes(x = error)) + 
-  geom_histogram(fill = "steelblue", binwidth = 15) +  
-  geom_vline(aes(xintercept = mean(error)), linetype = 2) +
-  theme_minimal() + 
-  xlab("Democracy Score Prediction Residuals") +
-  ggtitle("Model Residuals")
-```
-
-
-# Cross validate model using stratified 10-fold cross validation
-```{r}
-
-# Create random sample test data
-set.seed(135)
-
-# Split data into training and test data
-data_split <- initial_split(modelling_data_norm, prop = 7/10, strata = democracy_score)
-data_train <- training(data_split)
-data_test <- testing(data_split)
-
-# Create receipe
-data_recipe <- recipe(democracy_score ~ 
-                              gdp_growth_annual_percent + 
-                              gdp_per_capita_constant_2015_us  +
-                              tax_revenue_percent_of_gdp +
-                              total_natural_resources_rents_percent_of_gdp, 
-                      data = data_train)
-
-
-# Define model
-linear_spec <- linear_reg() %>%
-    set_engine("lm")
-
-# Create workflow
-linear_wf <- workflow() %>%
-    add_recipe(data_recipe) %>%
-    add_model(linear_spec)
-
-# Create folds
-folds <- vfold_cv(data = data_train, v = 5, strata = democracy_score, pool = 0.1)
-?vfold_cv
-
-# Fit and evaluate model
-cv_results <- linear_wf %>%
-    fit_resamples(folds) %>%
-    collect_metrics()
-
-# Print cross-validation results
-cv_results
-```
-As the RMSE of the model trained on the whole training data lies fairly close to the cross-validated RMSE mean, it seems that our model generalizes well outside the sample.
-
-
-# Comparing to intercept-only model
-```{r}
-modelling_data %>% mutate(average = mean(democracy_score)) %>% 
-  mutate(squared_error = ((democracy_score-average)^2)) %>% 
-  mutate(MSE = mean(squared_error)) %>% 
-  mutate(RMSE = sqrt(MSE)) %>% 
-  select("country", "average", "democracy_score", "squared_error", "RMSE")
-
-```
-Our cross validated model obtains a much smaller RMSE for predictions than if we were just guessing a country's democracy score by the average of all countries.
-
-We can furthermore see, that tere is an improvement from roughly 30 RMSE to 20 RMSE using the model.
 
 # Check assumptions
 Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
-
-```{r}
-# General check 
-check_model(democracy_score_model_norm, check = c("qq", "linearity", "homogeneity", "pp_check"))
-
-# Collinearity (VIF)
-plot(check_collinearity(democracy_score_model_norm))
-
-```
 
 
 ## Checking normality of the model using QQ-plot, Shapiro-Wilk test and Anderson-Darling test
@@ -594,7 +475,19 @@ plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distan
 abline(h = 4/length(worlddatabank_numeric), col = "red")
 ```
 
-## VIF table
+# Modelling
+Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
+
+For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
+
+Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
+
+As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
+
+## Check for multicollinearity between variables
+Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+
+We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
 ```{r}
 # remove non-numeric variables, that are irrelevant for collinearity analysis
 worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
@@ -644,17 +537,3 @@ corr_table_vif <- vif_matrix %>%
 print(corr_table_vif)
 ```
 As all of our variables have a VIF score of just above 1, it means that no further investigation is warranted and all correlation coeffiecients and p-values can be trusted.
-
-
-As the scales of measurement differs greatly between the variables, we normalize them all to be able to compare their coefficients:
-
-## Check for multicollinearity between variables
-Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
-
-We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
-```{r}
-# remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
-names(worlddatabank_2019_numeric)
-
-```
