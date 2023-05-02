@@ -78,33 +78,20 @@ We can see that the freedomhouse democracy index has a very high correlation wit
 INSERT FUNCTION
 
 ```{r}
-# Extract variable names
-variable <- unique(na.omit(worlddatabank[,2],)) # extract variable strings
-```
-
-```{r}
-# The datafile has to be in a specific format in order to work with the function. The format goes like this: The first column is supposed to be the country, the second column is the different variable for each country, and the following columns are supposed to be measurements per year. The code beneath this is an example on how this can be achieved.
-
-worlddatabank <- read_csv("worlddatabank.csv", show_col_types = FALSE)
-
-# First we extract the column with the contry name, and the series name, which in this case is our variable
-worlddatabank2 <- worlddatabank[, c("Country Name", "Series Name")]
-
-# We then circumnavigate some unused columns by indexinf from the 5ft column, which is where our measuremnts per year starts, and bind this to our previusly created dataframe
-worlddatabank2 <- cbind(worlddatabank2, worlddatabank[, 5:ncol(worlddatabank)])
-
-# We now have to make sure, that the columns have the correct names. This is the "manual" part of this process
-worlddatabank2 <- setNames(worlddatabank2, c("Country", "variable", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021"))
-
-# Now the data file should be ready for an N/A assessment
-
-```
-
-```{r}
 
 missing_data_function <- function(data_file) {
+  
+  temp <- data_file[, c("Country Name", "Series Name")]
 
-  data_file[, 3:ncol(data_file)] <- lapply(data_file[, 3:ncol(data_file)], as.numeric)
+  temp <- cbind(temp, data_file[, 5:ncol(data_file)])
+
+  temp <- rename_at(temp, vars(3:ncol(temp)), ~ substr(., 1, 4))
+
+  temp <- rename(temp, "country" = "Country Name", variable = "Series Name")
+
+  temp[, 3:ncol(temp)] <- lapply(temp[, 3:ncol(temp)], as.numeric)
+  
+  data_file <- temp
   
   col_names <- colnames(data_file)
 
@@ -154,13 +141,15 @@ missing_data_function <- function(data_file) {
                     theme(axis.text.x = element_text(angle = 90, size = 8, hjust = 1))
 
 
-
-  
-
 list(missing_data, col_means_plot, row_means_plot)
 }
 
-missing_data_function(worlddatabank2)
+```
+
+```{r warning=FALSE}
+
+missing_data_function(wdb)
+
 ```
 
 # Modelling
