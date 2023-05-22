@@ -15,7 +15,7 @@ setwd("C:/Users/jonat/OneDrive/Desktop/University/Assignments/2. Semester/Applie
 
 ```{r}
 
-wdb <- read_csv("Repository/applied-social-science/data/worlddatabank.csv")
+wdb <- read_csv(file.choose())
 
 ```
 

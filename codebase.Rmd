@@ -25,73 +25,94 @@ library(nortest)
 library(lmtest)
 ```
 
-# Load and clean data
-```{r warning=FALSE}
-# World Data Bank data set
-worlddatabank <- read_csv(file.choose(), show_col_types = FALSE) %>%  
-  rename_at(vars(5:13), ~ substr(., 1, 4)) %>%   # rename "year"-columns
-  rename("country" = "Country Name", variable = "Series Name") %>% 
-  mutate_at(vars(5:13), as.numeric) %>%          # convert observations to decimals
-  select(-c("Country Code", "Series Code"))      # exclude irrelevant column(s)
+# Load and Clean Data
 
-# Freedom House dataset
-freedomhouse <- read_excel("All_data_FIW_2013-2022.xlsx", sheet = 2, skip = 1, col_names = TRUE)
+## Freedom House 
+
+Data can be downloaded at: https://freedomhouse.org/report/freedom-world
+The exact dataset we used can be downloaded here: https://freedomhouse.org/sites/default/files/2023-02/All_data_FIW_2013-2023.xlsx
+
+When running the below code, you will be prompted to select the relevant file. 
+
+```{r warning=FALSE}
+# load entire data set
+freedomhouse <- read_excel(file.choose(), sheet = 2, skip = 1, col_names = TRUE) 
+
+# clean and filter relevant data points
 freedomhouse <- freedomhouse %>% 
   clean_names() %>%                                            # tidy data with janitor-package
   rename(country = country_territory, year = edition ) %>%     # rename columns
   select(c("country", "region", "c_t", "year", "pr", "cl", "total"))  # select relevant columns
+```
 
-# Democracy Matrix Ranking
-democracy_matrix <- read_excel("democracy-matrix-ranking.xlsx", skip = 1, col_names = TRUE)
-democracy_matrix <- democracy_matrix %>% 
-  clean_names() %>%                  # tidy data with janitor-package
-  select(country, total_value_index) # select columns
 
+## World Development Indicators
+
+Data can be downloaded at https://databank.worldbank.org/source/world-development-indicators
+
+For replication and reproducing purposes, the World Data Bank data must be downloaded in CSV format and should ideally exclude aggregates (Middle East, European Union etc.). 
+
+When running the below code, you will be prompted to select the relevant file. 
+
+```{r warning=FALSE}
+worlddatabank <- read_csv(file.choose(), show_col_types = FALSE) %>%  
+  rename_at(vars(5:ncol(.)), ~ substr(., 1, 4)) %>%   # rename year-columns appropriately
+  rename("country" = "Country Name", variable = "Series Name") %>%   # rename other relevant columns
+  mutate_at(vars(5:ncol(.)), as.numeric) %>%          # convert observations to numeric
+  select(-c("Country Code", "Series Code"))           # exclude irrelevant column(s)
+```
+
+## Democracy Matrix Total Value Index 2020
+
+The Democracy Matrix Ranking is compared against Freedom House to check whether the indices broadly agrees.
+
+The data can be found here: https://www.democracymatrix.com/ranking, but cannot be downloaded as a file.
+We copied it into an Google Sheet document and exported is as a CSV file. This can be found in the Github repo.
+
+Due to the scores falling between 0-1, we scale the data by multiplying the scores with 100 to compare it to Freedom House Scores, which are scored from 0-100.
+
+```{r warning=FALSE}
+democracy_matrix <- read_csv(file.choose(), col_names = TRUE) %>% 
+  clean_names() %>%                                 # tidy data with janitor-package
+  select(country, total_value_index) %>%            # select columns
+  mutate(total_value_index = total_value_index*100) # scale data
 ```
 
 # Compare democracy-indexes
+In order to compare the two downloaded democracy ranking, we merge the relevant data sets, selecting only data from The World Development Indicators for 2020, as this is the most recent results published by the Democracy Matrix Ranking project.
+
 ```{r warning=FALSE}
-# Merge dataframes
-# We compare 2020, as this is the year the democracy matrix is modelled on
 index_comparison <- freedomhouse %>% filter(year == 2020) %>% 
   left_join(democracy_matrix, by = "country") %>% 
   select(country, total, total_value_index) %>%  # select relevant columns
-  filter(!is.na(total_value_index)) %>% # filter for rows with missing values (territories are not included in Democracy Matrix ranking)
-  mutate(total_value_index = total_value_index/10) # scale the democracy ranking to 0-100 from 0-1000
+  filter(!is.na(total_value_index)) # filter for rows with missing values (territories are not included in Democracy Matrix ranking)
 
 # Draw Scatterplot
 index_comparison %>% 
   ggplot(aes(x = total, y = total_value_index, label = country)) +
-  geom_text() +
-  geom_smooth(method = "lm", se = FALSE)
-```
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "steelblue") +
+  xlab("Freedom House Score") +
+  ylab("Democracy Matrix Ranking Score") +
+  ggtitle("Comparing Democracy Scores Country-by-country") +
+  theme_minimal()
 
-```{r}
 # Check correlation
 cor(index_comparison$total, index_comparison$total_value_index)
+
 ```
 
-We can see that the freedomhouse democracy index has a very high correlation with the democracy matrix. 
+We can see that the Freedom House democracy index has a very high correlation with the democracy matrix ranking project. 
 
+# Inspect missing data
 
-# Missing data calculations for each subset
-INSERT FUNCTION
+## Define generalizable
+
+The below function is written such that when run on a data set downloaded from The World Data Bank World Development Indicators it will provide an overview of how much data is missing along with visualisations.
 
 ```{r}
 
 missing_data_function <- function(data_file) {
-  
-  temp <- data_file[, c("Country Name", "Series Name")]
-
-  temp <- cbind(temp, data_file[, 5:ncol(data_file)])
-
-  temp <- rename_at(temp, vars(3:ncol(temp)), ~ substr(., 1, 4))
-
-  temp <- rename(temp, "country" = "Country Name", variable = "Series Name")
-
-  temp[, 3:ncol(temp)] <- lapply(temp[, 3:ncol(temp)], as.numeric)
-  
-  data_file <- temp
   
   col_names <- colnames(data_file)
 
@@ -130,14 +151,14 @@ missing_data_function <- function(data_file) {
 
   col_means_plot <- ggplot(df_col_means, aes(x = years, y = col_means, fill = years)) +
                     geom_bar(stat = "identity") +
-                    labs(x = "Year", y = "Missing Data", title = "Missing Data per year")
+                    labs(x = "Year", y = "Missing Data", title = "Missing Data By Year")
   
 
   df_row_means <- data.frame(variables, row_means)
 
   row_means_plot <- ggplot(df_row_means, aes(x = variables, y = row_means, fill = variables)) +
                     geom_bar(stat = "identity") +
-                    labs(x = "Variable", y = "Missing Data", title = "Missing data per variable") +
+                    labs(x = "Variable", y = "Missing Data (Decimal)", title = "Missing Data By Variable") +
                     theme(axis.text.x = element_text(angle = 90, size = 8, hjust = 1))
 
 
@@ -146,10 +167,10 @@ list(missing_data, col_means_plot, row_means_plot)
 
 ```
 
+## Inspecting our data
+
 ```{r warning=FALSE}
-
-missing_data_function(wdb)
-
+missing_data_function(worlddatabank)
 ```
 
 # Modelling
