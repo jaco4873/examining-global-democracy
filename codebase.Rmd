@@ -154,13 +154,13 @@ missing_data_function <- function(data_file) {
                     labs(x = "Year", y = "Missing Data", title = "Missing Data By Year")
   
 
-  df_row_means <- data.frame(variables, row_means)
+  df_row_means <- data.frame("variable" = missing_data[1:(nrow(missing_data)-1), 1], 
+                             "row_means" = missing_data[1:(nrow(missing_data)-1), ncol(missing_data)])
 
-  row_means_plot <- ggplot(df_row_means, aes(x = variables, y = row_means, fill = variables)) +
+  row_means_plot <- ggplot(df_row_means, aes(x = variable, y = row_means, fill = variable)) +
                     geom_bar(stat = "identity") +
                     labs(x = "Variable", y = "Missing Data (Decimal)", title = "Missing Data By Variable") +
                     theme(axis.text.x = element_text(angle = 90, size = 8, hjust = 1))
-
 
 list(missing_data, col_means_plot, row_means_plot)
 }
@@ -174,55 +174,46 @@ missing_data_function(worlddatabank)
 ```
 
 # Modelling
-Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
+Based on the missing data for the macroeconomic variables, we have decided to model based on year 2020 and excluded the Gini-coefficient due to missing roughly 3/4 data points. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
 
-For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
-
-Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
-
-As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
-
-## Filter freedomhouse-data for 2019 only
+## Subset world data bank data to only include 2020 data for all countries excluding the Gini-variable
 ```{r}
-freedomhouse_2019 <- freedomhouse %>%
-  filter(year == 2019)
-```
-
-## Merge our final World Data Bank dataset with the freedomhouse dataset
-Merging the dataset worlddatabank_2019 and freedomhouse_2019 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse-datas
-
-This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. 
-
-## Subset final dataset to only include 2019 data for all countries excluding the Gini-variable and R&D
-```{r}
-worlddatabank_2019 <- worlddatabank %>%
-  select(country, variable, '2019') %>% 
-  filter(variable != "Gini index", variable != "Research and development expenditure (% of GDP)") 
+worlddatabank_2020 <- worlddatabank %>%
+  select(country, variable, '2020') %>% 
+  filter(variable != "Gini index") 
 
 # Convert into wide-format for later modelling and exploration of data 
-worlddatabank_2019 <-  worlddatabank_2019 %>%
-  pivot_wider(names_from = variable, values_from = "2019", id_cols = "country") %>% 
+worlddatabank_2020 <-  worlddatabank_2020 %>%
+  pivot_wider(names_from = variable, values_from = "2020", id_cols = "country") %>% 
   clean_names() %>%  # clean column names 
   slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (the rows following are groupings of countries)
 ```
 
+## Filter freedomhouse-data for 2020 only
+```{r}
+freedomhouse_2020 <- freedomhouse %>%
+  filter(year == 2020)
+```
+
+# Merging  final World Data Bank dataset with the freedom house dataset
+Merging the dataset worlddatabank_2020 and freedomhouse_2020 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse dataset.
+
+This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. 
+
 ## Merge our final World Data Bank dataset with the freedomhouse dataset
-We still have the dataset freedomhouse_2019 which we can merge with our data for all countries
+We still have the dataset freedomhouse_2020 which we can merge with our data for all countries
 
 Merging as in the previous example using fedmatch::merge_plus
 
-INSERT EXPLANATION OF FUNCTION
-
 ```{r}
 # Add unique key for each observation to both datasets for fedmatch::merge_plus (function requirement)
-worlddatabank_2019$unique_key_1 <- 1:nrow(worlddatabank_2019)
-freedomhouse_2019$unique_key_2 <- 1:nrow(freedomhouse_2019)
-# we already have a unique_key_2 column in the freedomhouse dataset
+worlddatabank_2020$unique_key_1 <- 1:nrow(worlddatabank_2020)
+freedomhouse_2020$unique_key_2 <- 1:nrow(freedomhouse_2020)
 
-# Merge datasets using merge_plus and the Weighted Jaccard algorithm -
-  # NB: Order of dataset matters
-fuzzy_result <- merge_plus(data1 = worlddatabank_2019, 
-                          data2 = freedomhouse_2019,
+# Merge datasets using merge_plus and the Weighted Jacquard algorithm -
+  # NB: Order of data sets matter
+fuzzy_result <- merge_plus(data1 = worlddatabank_2020, 
+                          data2 = freedomhouse_2020,
                           by.x = "country",
                           by.y = "country", match_type = "fuzzy", 
                           fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .2),
@@ -236,17 +227,17 @@ print(fuzzy_result$data1_nomatch)
 
 22 rows did not have a match. These have been manually inspected, and only 6 of these are suppossed to be matched with a corresponding row in the freedomhouse data-set, namely:
 
-"South Korea", "Korea, Rep."
-"Samoa", "American Samoa"
-"Congo (Kinshasa)", "Congo, Dem. Rep."
-"Congo (Brazzaville)", "Congo, Rep."
-"The Gambia", "Gambia, The"
-"North Korea", "Korea, Dem. People's Rep."
+1. "South Korea", "Korea, Rep."
+2. "Samoa", "American Samoa"
+3. "Congo (Kinshasa)", "Congo, Dem. Rep."
+4. "Congo (Brazzaville)", "Congo, Rep."
+5. "The Gambia", "Gambia, The"
+6. "North Korea", "Korea, Dem. People's Rep."
 
-That is manually renamed:
+The entries are manually renamed:
 
 ```{r}
-freedomhouse_2019 <- freedomhouse_2019 %>%
+freedomhouse_2020 <- freedomhouse_2020 %>%
   mutate(country = case_when(
     country == "South Korea" ~ "Korea, Rep.",
     country == "Samoa" ~ "American Samoa",
@@ -261,8 +252,8 @@ We can then rerun the script and inspect again:
 
 ```{r}
 
-fuzzy_result<- merge_plus(data1 = worlddatabank_2019, 
-                          data2 = freedomhouse_2019,
+fuzzy_result<- merge_plus(data1 = worlddatabank_2020, 
+                          data2 = freedomhouse_2020,
                           by.x = "country",
                           by.y = "country", match_type = "fuzzy", 
                           fuzzy_settings = build_fuzzy_settings(method = "jw", maxDist = .2),
@@ -272,7 +263,8 @@ fuzzy_result<- merge_plus(data1 = worlddatabank_2019,
 # Check the rows that did not get an exact match
 print(fuzzy_result$data1_nomatch)
 ```
-We do not expect these 16 rows to be matched, as the freedomhouse dataset does not contain democracy scores for these entities.
+
+We do not expect these remaining 16 rows to be matched, as the freedom house data set does not contain democracy scores for these entities.
 
 ```{r}
 # Inspect non-exact matches
@@ -288,7 +280,7 @@ Of the non-exact matches, a couple of them are wrongly matched:
 3. New Caledonia is matched with	New Zealand
 4. Northern Mariana Islands is matched with	Northern Cyprus
 
-There are no correct row from the democracy index to be matched with, so we exclude these rows.
+These four entities are not rated by Freedom House, so we do not expect any matches, and can exclude the rows and save the remaining matches to a data frame.
 
 ```{r}
 # Save matches to data frame and exclude the relevant rows
@@ -298,15 +290,13 @@ modelling_data <- as.data.frame(fuzzy_result$matches) %>%
 
 
 ```{r}
-# Select and rearrange relevant rows:
-modelling_data <- modelling_data %>% 
-  select("country_1", 
-        "gdp_growth_annual_percent", 
-        "gdp_per_capita_constant_2015_us",
-        "tax_revenue_percent_of_gdp",
-        "total_natural_resources_rents_percent_of_gdp",
-        "total") %>% 
-  rename(democracy_score = total, country = country_1)
+# Rearrange columns:
+
+modelling_data <- modelling_data %>%
+  select(-c(unique_key_2, unique_key_1, country_2, region, c_t, tier, year, pr, cl)) %>% # exclude irrelevant columns
+  rename(democracy_score = total, country = country_1)  %>%                              # rename relevant columns
+  select(country, everything())                                                          # rearrange
+
 ```
 
 # Exploring the data
@@ -321,6 +311,7 @@ ggplot(modelling_data, aes(x = democracy_score)) + # map the democracy score var
   ylab("Percent-points") + 
   xlab("Democracy Score")
 ```
+
 
 ## GDP growth
 
@@ -405,30 +396,27 @@ ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y =
   theme_minimal()
 ```
 
+# Modelling
+Based on the missing data for the macroeconomic variables, we have decided to model based on year 2020 and for the four variables for which we have more than 50% of the data available.
 
-## Check for multicollinearity between variables
-Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
 
-We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
-```{r}
-# remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
-names(worlddatabank_2019_numeric)
+Despite having more complete data in years preceeding 2020, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest 2020 to be the most relevant year to model on.
 
-```
+As we are missing 74% for the Gini-variable, we have decided to exclude this in our model. 
 
 
-# Creating model(s)
+## Creating model(s)
 
 As the scales of measurement differs greatly between the variables, we normalize them all to be able to compare their coefficients:
 
 ```{r}
 # Select the predictor variables to be normalized
-predictor_vars <- c("gdp_growth_annual_percent","gdp_per_capita_constant_2015_us",
-        "tax_revenue_percent_of_gdp",
-        "total_natural_resources_rents_percent_of_gdp")
+predictor_vars <- modelling_data %>%
+  select(-democracy_score, -country) %>%
+  colnames()
 
-# Normalize the predictor variables and save to a new dataframe
+# Normalize the predictor variables and save to a new data frame
 modelling_data_norm <- modelling_data
 modelling_data_norm[predictor_vars] <- scale(modelling_data_norm[predictor_vars])
 ```
@@ -438,19 +426,35 @@ Each value in the variable-columns now represent how many standard deviations th
 We can then fit the linear regression model
 ```{r}
 # Fit the linear regression model with the normalized predictor variables
-democracy_score_model_norm <- lm(democracy_score ~ 
+democracy_score_model_norm <- stan_glm(democracy_score ~ 
                                   gdp_growth_annual_percent + 
                                   gdp_per_capita_constant_2015_us  +
                                   tax_revenue_percent_of_gdp +
                                   total_natural_resources_rents_percent_of_gdp,
                                 data = modelling_data_norm)
 
-tidy(democracy_score_model_norm) 
-glance(democracy_score_model_norm)
+summary(democracy_score_model_norm)
+
 ```
 
-# Check assumptions
+# Checking assumptions
 Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
+
+```{r}
+check_model(democracy_score_model_norm)
+```
+
+
+## Check for multicollinearity between variables
+Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
+
+We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
+```{r}
+# remove non-numeric variables, that are irrelevant for collinearity analysis
+worlddatabank_2020_numeric <- worlddatabank_2020 %>% select(-c("country", "unique_key_1"))
+names(worlddatabank_2020_numeric)
+
+```
 
 
 ## Checking normality of the model using QQ-plot, Shapiro-Wilk test and Anderson-Darling test
@@ -496,14 +500,6 @@ plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distan
 abline(h = 4/length(worlddatabank_numeric), col = "red")
 ```
 
-# Modelling
-Based on the missing data for the macroeconomic variables, we have decided to model based on year 2019 and for the four variables for which we have more than 50% of the data available.
-
-For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For the years 2020, 2021, and 2022 the data is very incomplete. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
-
-Despite having more complete data in years preceeding 2019, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest and justify 2019 to be the most relevant year to model on.
-
-As we are missing 58% of data for the R&D variable and 74% for the Gini-variable, we have decided to exclude these in our model. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
 
 ## Check for multicollinearity between variables
 Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
@@ -511,9 +507,9 @@ Checking for multicollinearty between the variables is vital as it would impair 
 We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
 ```{r}
 # remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_2019_numeric <- worlddatabank_2019 %>% select(-c("country"))
+worlddatabank_2020_numeric <- worlddatabank_2020 %>% select(-c("country"))
 
-names(worlddatabank_2019_numeric)
+names(worlddatabank_2020_numeric)
 
 ```
 
@@ -536,12 +532,12 @@ calculate_vif <- function(data) {
   return(vif_results)
 }
 
-my_vif_results <- calculate_vif(worlddatabank_2019_numeric)
+my_vif_results <- calculate_vif(worlddatabank_2020_numeric)
 
 my_vif_results <- unstack(my_vif_results, form=vif~variable)
 
-for (i in seq_along(names(worlddatabank_2019_numeric)[-1])) {
-  rownames(my_vif_results)[i] <- names(worlddatabank_2019_numeric)[-1][i]
+for (i in seq_along(names(worlddatabank_2020_numeric)[-1])) {
+  rownames(my_vif_results)[i] <- names(worlddatabank_2020_numeric)[-1][i]
 }
 ```
 
