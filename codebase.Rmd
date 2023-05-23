@@ -23,6 +23,7 @@ library(corrplot)
 library(kableExtra)
 library(nortest)
 library(lmtest)
+library(dlookr)
 ```
 
 # Load and Clean Data
@@ -186,7 +187,7 @@ worlddatabank_2020 <- worlddatabank %>%
 worlddatabank_2020 <-  worlddatabank_2020 %>%
   pivot_wider(names_from = variable, values_from = "2020", id_cols = "country") %>% 
   clean_names() %>%  # clean column names 
-  slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (the rows following are groupings of countries)
+  slice(1:(which(country == "Zimbabwe")))     # Include rows up to and including Zimbabwe (in case aggregate scores have been downloaded)
 ```
 
 ## Filter freedomhouse-data for 2020 only
@@ -301,6 +302,12 @@ modelling_data <- modelling_data %>%
 
 # Exploring the data
 
+## Extracting numerical summary of variables
+```{r}
+# diagnoses numerical variables and extract summary stats
+diagnose_numeric(modelling_data) %>% flextable()
+```
+
 ## Histogram of Democracy Score distribution
 
 ```{r}
@@ -312,10 +319,36 @@ ggplot(modelling_data, aes(x = democracy_score)) + # map the democracy score var
   xlab("Democracy Score")
 ```
 
+## Create scatterplots of all variables against democracy score
 
-## GDP growth
+```{r}
+# Convert data to long format 
+modelling_data_long <- modelling_data %>%
+  pivot_longer(cols = !c(country, democracy_score),
+               names_to = "variable",
+               values_to = "value")
 
-### Histogram
+# Plot the data
+modelling_data_long %>% 
+  ggplot(aes(x = value, y = democracy_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "steelblue") +
+  theme_minimal() +
+  facet_wrap(~variable, scales = "free_x") +
+  scale_x_continuous(limits = function(x) {             # leave out 5% of max values for each variable for better overview
+    q <- quantile(x, c(0.0, 0.95))
+    c(min(q), max(q))
+  }, expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 100))
+```
+
+## Inspecting predictor variables one by one
+The below code is useful for an easier manual inspection of each variables distribution and association to the democracy
+
+
+### GDP growth
+
+#### Histogram
 ```{r}
 ggplot(modelling_data, aes(x = gdp_growth_annual_percent)) + 
   geom_histogram(fill = "steelblue") +  
@@ -323,7 +356,7 @@ ggplot(modelling_data, aes(x = gdp_growth_annual_percent)) +
   theme_minimal() + 
   ylab("Number of countries")
 ```
-### Scatterplot
+#### Scatterplot
 
 ```{r}
 ggplot(modelling_data, aes(x = gdp_growth_annual_percent, y = democracy_score)) +
@@ -334,9 +367,9 @@ ggplot(modelling_data, aes(x = gdp_growth_annual_percent, y = democracy_score)) 
   theme_minimal()
 ```
 
-## GDP pr capita
+### GDP pr capita
 
-### Histogram
+#### Histogram
 ```{r}
 ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us)) + 
   geom_histogram(fill = "steelblue") +  
@@ -344,7 +377,7 @@ ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us)) +
   theme_minimal() + 
   ylab("Number of countries")
 ```
-### Scatterplot
+#### Scatterplot
 
 ```{r}
 ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us, y = democracy_score)) +
@@ -355,9 +388,9 @@ ggplot(modelling_data, aes(x = gdp_per_capita_constant_2015_us, y = democracy_sc
   theme_minimal()
 ```
 
-## Tax Revenue
+### Tax Revenue
 
-### Histogram
+#### Histogram
 ```{r}
 ggplot(modelling_data, aes(x = tax_revenue_percent_of_gdp)) + 
   geom_histogram(fill = "steelblue") +  
@@ -365,7 +398,7 @@ ggplot(modelling_data, aes(x = tax_revenue_percent_of_gdp)) +
   theme_minimal() + 
   ylab("Number of countries")
 ```
-### Scatterplot
+#### Scatterplot
 
 ```{r}
 ggplot(modelling_data, aes(x = tax_revenue_percent_of_gdp, y = democracy_score)) +
@@ -376,9 +409,9 @@ ggplot(modelling_data, aes(x = tax_revenue_percent_of_gdp, y = democracy_score))
   theme_minimal()
 ```
 
-## Natural resources
+### Natural resources
 
-### Histogram 
+#### Histogram 
 ```{r}
 ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp)) + 
   geom_histogram(fill = "steelblue") +  
@@ -386,7 +419,7 @@ ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp)) +
   theme_minimal() + 
   ylab("Number of countries")
 ```
-### Scatterplot
+#### Scatterplot
 ```{r}
 ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y = democracy_score)) +
   geom_point() +
@@ -431,126 +464,16 @@ democracy_score_model_norm <- stan_glm(democracy_score ~
                                   gdp_per_capita_constant_2015_us  +
                                   tax_revenue_percent_of_gdp +
                                   total_natural_resources_rents_percent_of_gdp,
-                                data = modelling_data_norm)
+                                data = modelling_data_norm, refresh = 0)
 
 summary(democracy_score_model_norm)
 
 ```
 
+
 # Checking assumptions
-Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for your data.
+Check assumptions such as linearity, normality, and homoscedasticity to ensure that the model is appropriate for the data.
 
 ```{r}
 check_model(democracy_score_model_norm)
 ```
-
-
-## Check for multicollinearity between variables
-Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
-
-We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
-```{r}
-# remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_2020_numeric <- worlddatabank_2020 %>% select(-c("country", "unique_key_1"))
-names(worlddatabank_2020_numeric)
-
-```
-
-
-## Checking normality of the model using QQ-plot, Shapiro-Wilk test and Anderson-Darling test
-```{r}
-# Visualize histogram of residuals
-hist(resid(democracy_score_model_norm))
-
-# Visualize Q-Q plot of residuals
-qqnorm(resid(democracy_score_model_norm))
-qqline(resid(democracy_score_model_norm))
-
-# Perform Shapiro-Wilk test
-shapiro.test(resid(democracy_score_model_norm))
-
-# Perform Anderson-Darling test
-library(nortest)
-ad.test(resid(democracy_score_model_norm))
-```
-
-## Checking homoscedasticity using a studentized Breusch-Pagan test and plotting the residuals vs predicted values
-```{r}
-# Plot residuals against predicted values
-plot(predict(democracy_score_model_norm), resid(democracy_score_model_norm))
-
-# Perform Breusch-Pagan test
-library(lmtest)
-bptest(democracy_score_model_norm)
-```
-
-## Checking linearity using the Cook-Weisberg test, in addition to the previously completed plots of the data
-```{r}
-# Perform Cook-Weisberg test
-library(lmtest)
-ncvTest(democracy_score_model_norm)
-```
-
-## Checking for outliers using Cook's distance
-```{r}
-cooks.distance(democracy_score_model_norm)
-
-# Plot Cook's distance
-plot(cooks.distance(democracy_score_model_norm), pch = 20, main = "Cook's distance")
-abline(h = 4/length(worlddatabank_numeric), col = "red")
-```
-
-
-## Check for multicollinearity between variables
-Checking for multicollinearty between the variables is vital as it would impair our research if there was collinearity between variables, as collinear variables can predict each other. 
-
-We test multicollinearity using the Variance Inflation Factor (VIF), VIF tests the correlation between the independent variables and the strength of that correlation. It is predicted by regressing a variable against every other variable, and explains how well the variable is explained by other variables. Variance inflation factor is calculated as 1 divided by the tolerance. The tolerance is the percent of variance in the variable that cannot be accounted for by other variables and is calculated as 1 minus R squared. The VIF score starts at 1 and has no upper limit, a value of 1 indicates that there is no correlation between variables and therefore no collinearity. A score between 1 and 5 suggests a moderate collinearity, but not enough to take corrective action. Above 5 is serious and warrants corrective measures, as the severity of the potential problems increase.
-```{r}
-# remove non-numeric variables, that are irrelevant for collinearity analysis
-worlddatabank_2020_numeric <- worlddatabank_2020 %>% select(-c("country"))
-
-names(worlddatabank_2020_numeric)
-
-```
-
-```{r}
-calculate_vif <- function(data) {
-  
-  predictors <- names(data)[sapply(data, is.numeric)]
-  
-  vif_results <- data.frame(variable = character(),
-                             vif = double(),
-                             stringsAsFactors = FALSE)
-  
-  for (p in predictors) {
-    vif_value <- vif(lm(paste(p, "~ .", sep = ""), data = data))
-    vif_results <- bind_rows(vif_results, tibble(variable = p,
-                                                 vif = vif_value
-                                                 ))
-  }
-  
-  return(vif_results)
-}
-
-my_vif_results <- calculate_vif(worlddatabank_2020_numeric)
-
-my_vif_results <- unstack(my_vif_results, form=vif~variable)
-
-for (i in seq_along(names(worlddatabank_2020_numeric)[-1])) {
-  rownames(my_vif_results)[i] <- names(worlddatabank_2020_numeric)[-1][i]
-}
-```
-
-```{r}
-# Make a matrix of all VIF scores
-vif_matrix <- cbind(my_vif_results)
-
-corr_table_vif <- vif_matrix %>%
-  as.data.frame() %>%
-  round(2) %>%
-  kable(format = "html", digits = 2, caption = "VIF Matrix") %>%
-  kable_styling(bootstrap_options = c("hover", full_width = F))
-
-print(corr_table_vif)
-```
-As all of our variables have a VIF score of just above 1, it means that no further investigation is warranted and all correlation coeffiecients and p-values can be trusted.
