@@ -14,16 +14,14 @@ knitr::opts_knit$set(root.dir = "/Users/jacoblillelund/Documents/applied-social-
 library(readxl)
 library(janitor)
 library(tidyverse)
-library(fastDummies)
 library(fedmatch)#(https://cran.r-project.org/web/packages/fedmatch/vignettes/Fuzzy-matching.html)
 library(broom)
 library(knitr)
 library(car)
-library(corrplot)
-library(kableExtra)
-library(nortest)
-library(lmtest)
 library(dlookr)
+library(flextable)
+library(rstanarm)
+library(performance)
 ```
 
 # Load and Clean Data
@@ -107,7 +105,7 @@ We can see that the Freedom House democracy index has a very high correlation wi
 
 # Inspect missing data
 
-## Define generalizable
+## Define generalizable missing-data function
 
 The below function is written such that when run on a data set downloaded from The World Data Bank World Development Indicators it will provide an overview of how much data is missing along with visualisations.
 
@@ -174,8 +172,9 @@ list(missing_data, col_means_plot, row_means_plot)
 missing_data_function(worlddatabank)
 ```
 
-# Modelling
 Based on the missing data for the macroeconomic variables, we have decided to model based on year 2020 and excluded the Gini-coefficient due to missing roughly 3/4 data points. Furthermore, our research shows us that there a different standards for reporting Gini between countries.
+
+# Prepare data sets for merging
 
 ## Subset world data bank data to only include 2020 data for all countries excluding the Gini-variable
 ```{r}
@@ -196,12 +195,11 @@ freedomhouse_2020 <- freedomhouse %>%
   filter(year == 2020)
 ```
 
-# Merging  final World Data Bank dataset with the freedom house dataset
+## Merging  final World Data Bank dataset with the freedom house dataset
 Merging the dataset worlddatabank_2020 and freedomhouse_2020 creates issues, as the same naming conventions have not been followed on different countries. For instance, "Turkiye" from the world data bank is equivalent to the "Turkey"-entry in the freedomhouse dataset.
 
 This is solved used the fedmatch package, that allows "fuzzy" merging. An alternative option is using dirty_cat in Python. 
 
-## Merge our final World Data Bank dataset with the freedomhouse dataset
 We still have the dataset freedomhouse_2020 which we can merge with our data for all countries
 
 Merging as in the previous example using fedmatch::merge_plus
@@ -429,45 +427,32 @@ ggplot(modelling_data, aes(x = total_natural_resources_rents_percent_of_gdp, y =
   theme_minimal()
 ```
 
-# Modelling
-Based on the missing data for the macroeconomic variables, we have decided to model based on year 2020 and for the four variables for which we have more than 50% of the data available.
-
-For our  multiple regression model we aim to model based on data for one given year, and not time-series data. For 2020 and 2021, this intuitively seems to be a result of the COVID-19 pandemic, and for 2022 simply just, that the data was not released by the time we gathered data (beginning of 2023). We suggest that the rather incomplete data for the years under COVID-19 are not representative of the macro-economy in a normal year. 
-
-Despite having more complete data in years preceeding 2020, we do still believe it makes more sense to model on data from the most recent representative year. Given the above reasons, we suggest 2020 to be the most relevant year to model on.
-
-As we are missing 74% for the Gini-variable, we have decided to exclude this in our model. 
-
 
 ## Creating model(s)
-
-As the scales of measurement differs greatly between the variables, we normalize them all to be able to compare their coefficients:
-
+We center and scale variables before fitting the regression model using stan_glm
 ```{r}
-# Select the predictor variables to be normalized
+# Select the predictor variables
 predictor_vars <- modelling_data %>%
   select(-democracy_score, -country) %>%
   colnames()
 
-# Normalize the predictor variables and save to a new data frame
-modelling_data_norm <- modelling_data
-modelling_data_norm[predictor_vars] <- scale(modelling_data_norm[predictor_vars])
-```
+# Center the predictor variables and save to a new data frame
+modelling_data_centered <- modelling_data 
+modelling_data_centered[predictor_vars] <- scale(modelling_data_centered[predictor_vars], center = TRUE, scale = FALSE)
 
-Each value in the variable-columns now represent how many standard deviations the given country falls from the mean in regards to that variable.
+# Scale gdp pr capita with factor 1000
+modelling_data_centered$gdp_per_capita_constant_2015_us <- modelling_data_centered$gdp_per_capita_constant_2015_us/1000
 
-We can then fit the linear regression model
-```{r}
-# Fit the linear regression model with the normalized predictor variables
-democracy_score_model_norm <- stan_glm(democracy_score ~ 
+
+# Fit the linear regression model with the centered predictor variables
+democracy_score_model <- stan_glm(democracy_score ~ 
                                   gdp_growth_annual_percent + 
                                   gdp_per_capita_constant_2015_us  +
                                   tax_revenue_percent_of_gdp +
                                   total_natural_resources_rents_percent_of_gdp,
-                                data = modelling_data_norm, refresh = 0)
+                                data = modelling_data_centered, refresh = 0)
 
-summary(democracy_score_model_norm)
-
+print(democracy_score_model, digits = 3)
 ```
 
 
