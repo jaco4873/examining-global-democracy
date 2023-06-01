@@ -3,10 +3,11 @@
 
 ## Repository Overview
 In this repo you will find all data needed to replicate or reproduce our research. A short description of the files and folders follow:
-codebase.md: this is the markdown document that contains all code needed to get the results included in our article
-data: in this folder you will find the three data sets we have used in our research
-resources: in thos folder you will find some of the research papers we have during our project
-archived code: here you will find code snippets: a stand-alone missing data function for World Data Bank, python code for 'fuzzy' merging datasets in Python (alternative to fedmatch), and code for individual assumption checking
+
+1. codebase.md: this is the markdown document that contains all code needed to get the results included in our article
+2. data: in this folder you will find the three data sets we have used in our research
+3. resources: in this folder you will find some of the research papers we have during our project
+4. archived code: here you will find code snippets: a stand-alone missing data function for World Data Bank, python code for 'fuzzy' merging datasets in Python (alternative to fedmatch), and code for individual assumption checking
 
 ## Our User story
 1. As a researcher, I want to develop a tool that can assist policymakers in making informed decisions regarding improvement of liberal democracy. 
