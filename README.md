@@ -1,7 +1,5 @@
 # Applied Social Science
 2023 Project in Applied Cognitive Science
-The Project is an Exploratory Study and WILL need a confirmatory study later on to prove its findings in any way. (Refer to Art of Statistics p. 350-353)
-Can we use our model on test-data (which we have not looked into beforehand?), to do some confirmatory experiment?
 
 ## Our User story
 1. As a researcher, I want to develop a tool that can assist policymakers in making informed decisions regarding improvement of liberal democracy. 
@@ -22,35 +20,3 @@ Our Intermediate Product is the creation of a Github Pages site on which we publ
 
 ### AP
 Our Advanced Product is self-critique as well as suggesting further studies. This will also be published on Github Pages.
-
-
-# EXAM TEMPLATE
-
-## Abstract
-
-## Introduction
-- A resource to investigate the relationship between democracy and economic variables (by providing codebase)
-- A benchmark model, which will be tested when new data is released on the databank
-- A challenge to others to create models with a higher predictions rate
-
-## Methodology
-
-- Variables chosen and why
-- Modelling choice
-
-## Codebase
-- Democracy Index comparison script
-- Missing data script
-- Data cleaning scripts
-- dirty_cat merging script
-- Model script 
-  - Assumption checking (collinearity)
-
-## Database
-- Links
-- Names of worldbank series
-
-## Unanswered questions and future work
-- Challenges: Causality
-
-## Conclusions
